@@ -107,9 +107,9 @@ Reviewing as if this will run for 10 years and be used by millions. Every decisi
 
 ## G. Residual risks (honest)
 
-- **MVP ships StubProvider for zero-key operation** — real LLM quality is validated by the offline eval harness (roadmap). The StubProvider is *real logic* (pattern-grounded templates), not a mock that pretends; but it is not a substitute for a frontier model. This is clearly scoped, not hidden.
+- **MVP ships StubProvider for zero-key operation** — real LLM quality is validated by the offline eval harness (roadmap). The StubProvider generates real R3F/Three.js/WebGPU code (BufferGeometry, PointsMaterial, AdditiveBlending, useFrame with delta, dispose cleanup, WebGLRenderer config, WebGPU pipeline with navigator.gpu guards), not a mock that pretends; but it is not a substitute for a frontier model. This is clearly scoped, not hidden.
 - **Evidence Collector in MVP uses heuristics** (regex/AST-lite for HTML/JSX/JS), not a full browser. The *interface* is stable so Phase-1 swaps in headless rendering. Heuristics are deterministic and unit-tested — adequate for MVP, honestly labeled.
-- **12 patterns, not 1000.** The code is identical; the library is a data concern. Risk is content coverage, not architecture.
+- **22 patterns, not 1000.** The code is identical; the library is a data concern. Risk is content coverage, not architecture. Coverage spans web UI (12) + 3D/game (10: 2D platformer, 3D action, top-down shooter, physics puzzle, racing, WebGL shader art, WebGPU render pipeline, R3F postprocessing, game state manager, ECS architecture).
 
 ---
 

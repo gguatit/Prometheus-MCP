@@ -273,7 +273,7 @@ Two-phase: **Evidence** then **Reasoning**.
    - Pattern conformance (required elements present? anti-patterns present?).
    - Optional (roadmap): headless render → screenshot → vision critique.
 2. **CriticEngine** runs:
-   - **Rule engine:** ~30+ rules across 14 dimensions. Each rule: `{id, dimension, weight, evaluate(evidence, artifact, patternCtx) → {score, findings[]}}`. Deterministic, unit-tested, auditable.
+   - **Rule engine:** 60 rules across 16 dimensions (14 base + graphics-quality + game-feel). Each rule: `{id, dimension, weight, evaluate(evidence, artifact, patternCtx) → {score, findings[]}}`. Deterministic, unit-tested, auditable. Includes 3D/graphics rules (dispose, context-loss, draw calls, shader balance, WebGPU init, buffer usage) and game-feel rules (input, screen shake, hit feedback, delta motion, anticipation).
    - **LLM reasoning pass** (optional, when a provider with reasoning is available): synthesizes qualitative findings the rules can't measure (creative originality, modern design practices) — but its output is **bound by evidence** and must cite evidence ids. It can adjust a dimension by at most ±15 (capped) to prevent ungrounded swings.
 3. **Scoring:** weighted aggregate (weights configurable, default balanced). Every contribution recorded in `justification[]` (ruleId, dimension, delta, evidence).
 4. **Output:** full `Critique` — strengths, weaknesses, missing, design issues, tech issues, opportunities, prioritized suggestions with expected uplift, aggregate + per-dimension scores, justification tree, critic version.
@@ -283,7 +283,7 @@ Two-phase: **Evidence** then **Reasoning**.
 ## 14. Scoring System Design
 
 - Range **0–100** per dimension and aggregate.
-- Default weights across 14 dimensions (sum 1.0), overridable in config.
+- Default weights across 16 dimensions (sum 1.0), overridable in config.
 - **Normalization:** each rule returns a 0–1 sub-score × weight within its dimension; dimension score = Σ(ruleSubScore×ruleWeight)×100, clamped.
 - **Audibility:** `justification[]` lets any score be reconstructed. `expectedUpliftIfApplied` quantifies the suggested fixes' impact (sum of rule deltas, capped).
 - **Anti-gaming:** LLM reasoning contribution is capped (±15) and must cite evidence; rules are deterministic. No dimension can hit 100 on text reasoning alone for measurable dimensions — evidence must support it.
@@ -390,7 +390,7 @@ A **real, working, non-placeholder** v1 an MCP client can connect to and use:
 - MCP surface: 7 tools, 5 resources, 4 prompts — all wired to real logic.
 - Tests: Vitest unit + in-memory MCP smoke.
 
-**Not in MVP (roadmap):** vision-based critique, OTLP export, distributed backends, vector memory, 1000 patterns, human-in-the-loop checkpoints, eval harness, Context7 live calls (interface ready).
+**Not in MVP (roadmap):** vision-based critique, OTLP export, distributed backends, vector memory, 1000 patterns, human-in-the-loop checkpoints, eval harness, Context7 live HTTP calls. Context7 knowledge is integrated via embedded curated fragments (15 fragments covering Three.js, R3F, WebGPU, GLSL, game juice, Phaser, Rapier, WebGL context-loss).
 
 ---
 

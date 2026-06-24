@@ -21,15 +21,15 @@ Prometheus-MCP는 Claude, GPT, DeepSeek, MiniMax, Qwen, GLM 및 미래 모델이
 ### 대상 분야
 
 - 웹 디자인 / UI 디자인 / UX 디자인
-- Three.js / React Three Fiber
-- VFX / 인터랙티브 경험
+- Three.js / React Three Fiber / WebGL / WebGPU
+- VFX / 셰이더 (GLSL / WGSL) / 인터랙티브 경험
 - 프론트엔드 애니메이션 / 크리에이티브 코딩
-- 게임 개발
+- 게임 개발 (2D / 3D / Phaser / Rapier / ECS)
 
 ### 핵심 가치
 
-1. 전문가 패턴 라이브러리 - 12개 패턴 카테고리, 확장 가능한 구조
-2. Critic Engine - 14개 품질 차원, 37개 규칙, 증거 기반 평가
+1. 전문가 패턴 라이브러리 - 22개 패턴, 확장 가능한 구조
+2. Critic Engine - 16개 품질 차원, 60개 규칙, 증거 기반 평가
 3. 자동 개선 루프 - 목표 점수 도달까지 반복
 4. 품질 인텔리전스 - 감사 가능한 점수 근거
 5. AI 크리에이티브 디렉팅 - 패턴 선택, 개선 전략, 재생성
@@ -88,6 +88,40 @@ npm run build
 npm start
 ```
 
+### opencode 로컬 MCP 연결
+
+프로젝트 루트에 `opencode.json`을 생성하고 Prometheus를 로컬 MCP로 등록합니다. API 키 불필요 (StubProvider 기본 활성화).
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "prometheus": {
+      "type": "local",
+      "command": ["node", "E:/Downloads/Prometheus-MCP/dist/index.js"],
+      "enabled": true
+    }
+  }
+}
+```
+
+opencode 재시작 후 7개 도구(`direct_creative_work`, `critique_artifact` 등)가 에이전트에 연결됩니다.
+
+### Claude Desktop 연결
+
+`claude_desktop_config.json`에 추가:
+
+```json
+{
+  "mcpServers": {
+    "prometheus": {
+      "command": "node",
+      "args": ["E:/Downloads/Prometheus-MCP/dist/index.js"]
+    }
+  }
+}
+```
+
 ### 테스트
 
 ```bash
@@ -130,15 +164,15 @@ Prometheus-MCP is a Model Context Protocol server that elevates creative output 
 ### Target Domains
 
 - Web design / UI design / UX design
-- Three.js / React Three Fiber
-- VFX / interactive experiences
+- Three.js / React Three Fiber / WebGL / WebGPU
+- VFX / shaders (GLSL / WGSL) / interactive experiences
 - Frontend animation / creative coding
-- Game development
+- Game development (2D / 3D / Phaser / Rapier / ECS)
 
 ### Core Value
 
-1. Expert Pattern Library - 12 pattern categories, extensible structure
-2. Critic Engine - 14 quality dimensions, 37 rules, evidence-bound evaluation
+1. Expert Pattern Library - 22 patterns, extensible structure
+2. Critic Engine - 16 quality dimensions, 60 rules, evidence-bound evaluation
 3. Auto Improvement Loop - iterates until target score is reached
 4. Quality Intelligence - auditable score justifications
 5. AI Creative Directing - pattern selection, improvement strategy, regeneration
@@ -195,6 +229,40 @@ User request
 npm install
 npm run build
 npm start
+```
+
+### opencode Local MCP
+
+Create `opencode.json` in your project root and register Prometheus as a local MCP. No API key needed (StubProvider enabled by default).
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "prometheus": {
+      "type": "local",
+      "command": ["node", "E:/Downloads/Prometheus-MCP/dist/index.js"],
+      "enabled": true
+    }
+  }
+}
+```
+
+Restart opencode and the 7 tools (`direct_creative_work`, `critique_artifact`, etc.) become available to the agent.
+
+### Claude Desktop
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "prometheus": {
+      "command": "node",
+      "args": ["E:/Downloads/Prometheus-MCP/dist/index.js"]
+    }
+  }
+}
 ```
 
 ### Tests
