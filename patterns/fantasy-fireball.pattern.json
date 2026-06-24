@@ -1,0 +1,57 @@
+{
+  "id": "fantasy-fireball",
+  "name": "Fantasy Fireball VFX",
+  "description": "A magical fireball effect: a glowing core, layered particle emission, heat distortion, additive bloom, and a trailing motion path. Targets Three.js / R3F shader-based particle systems with post-processing bloom.",
+  "category": "fantasy_fireball",
+  "domain": "vfx",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "glowing-core", "description": "A bright emissive sphere mesh at the fireball center with a high-intensity emissive material (color temperature ~1800K-2200K orange).", "required": true },
+    { "name": "particle-emitter", "description": "A GPU-friendly Points or instanced mesh system emitting sparks that drift outward and fade; particle count tunable, frustum-culled.", "required": true },
+    { "name": "additive-blending", "description": "Core and particle materials use AdditiveBlending so overlapping glow accumulates into white-hot regions.", "required": true },
+    { "name": "motion-trail", "description": "A trailing path behind the fireball (ribbon geometry or fading instanced quads) that follows the projectile's trajectory.", "required": true },
+    { "name": "bloom-postprocess", "description": "An UnrealBloomPass (or equivalent) in the post-processing chain with threshold tuned so only the core/highlights bloom.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "heat-distortion", "description": "A subtle refraction/distortion shader layer around the core simulating heat shimmer.", "required": false },
+    { "name": "smoke-trail", "description": "A secondary darker, slower-fading smoke particle system behind the sparks.", "required": false },
+    { "name": "point-light", "description": "A dynamic PointLight parented to the core to cast real light on nearby geometry.", "required": false },
+    { "name": "launch-flash", "description": "A one-shot expanding ring flash at the spawn point that fades over ~200ms.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "vfx-core-intensity", "dimension": "visual-impact", "description": "Core emissive intensity high enough to read as a light source, not a flat sprite.", "weight": 0.4 },
+    { "id": "vfx-color-ramp", "dimension": "visual-impact", "description": "Color transitions from white-yellow core to orange-red edges (temperature gradient).", "weight": 0.3 },
+    { "id": "vfx-scale-read", "dimension": "visual-impact", "description": "Fireball scale reads as a projectile, not a static sprite; has perceived velocity.", "weight": 0.3 },
+    { "id": "vfx-particle-fade", "dimension": "animation-quality", "description": "Particles fade opacity over lifetime, not pop in/out.", "weight": 0.5 },
+    { "id": "vfx-trail-follow", "dimension": "animation-quality", "description": "Trail smoothly follows the core with no jagged disconnects.", "weight": 0.5 },
+    { "id": "vfx-bloom-threshold", "dimension": "technical-quality", "description": "Bloom threshold set so only emissive highlights bloom, not the whole scene.", "weight": 0.6 },
+    { "id": "vfx-disposal", "dimension": "technical-quality", "description": "Particle geometry/material/disposables are cleaned up when the effect ends (no leaks).", "weight": 0.4 },
+    { "id": "vfx-particle-count", "dimension": "performance", "description": "Particle count bounded (<=2000) and uses BufferGeometry attributes, not per-frame allocations.", "weight": 0.6 },
+    { "id": "vfx-frustum-cull", "dimension": "performance", "description": "Effect is frustum-culled / paused when off-screen.", "weight": 0.4 }
+  ],
+  "antiPatterns": [
+    { "id": "flat-sprite-core", "description": "Using a single flat sprite texture for the core with no emissive 3D volume reads as a decal, not a fireball.", "dimension": "visual-impact" },
+    { "id": "uniform-orange", "description": "A single uniform orange color with no temperature gradient looks cheap and unmagical.", "dimension": "visual-impact" },
+    { "id": "popping-particles", "description": "Particles that instantly appear/disappear without opacity fade break immersion.", "dimension": "animation-quality" },
+    { "id": "whole-scene-bloom", "description": "Bloom threshold too low washes out the entire scene; only highlights should bloom.", "dimension": "technical-quality" },
+    { "id": "per-frame-alloc", "description": "Creating new BufferGeometry/Vector3 in the render loop causes GC stutter.", "dimension": "performance" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-heat-distortion", "dimension": "visual-impact", "description": "Add a heat-distortion shader layer for a richer magical feel.", "expectedUplift": 6 },
+    { "id": "add-launch-flash", "dimension": "animation-quality", "description": "Add a spawn-point flash ring to sell the ignition moment.", "expectedUplift": 4 },
+    { "id": "add-point-light", "dimension": "visual-impact", "description": "Parent a PointLight to the core so it illuminates the environment.", "expectedUplift": 5 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "R3F fireball core + emitter",
+      "kind": "jsx",
+      "snippet": "<points ref={ref} frustumCulled={false}>\n  <bufferGeometry>\n    <bufferAttribute attach=\"attributes-position\" args={[positions, 3]} />\n    <bufferAttribute attach=\"attributes-alpha\" args={[alphas, 1]} />\n  </bufferGeometry>\n  <shaderMaterial\n    blending={THREE.AdditiveBlending}\n    transparent\n    depthWrite={false}\n    vertexShader={vert}\n    fragmentShader={frag}\n  />\n</points>"
+    }
+  ],
+  "references": [
+    { "title": "Real-Time Rendering, 4th ed. — Particle Systems", "author": "Akenine-Moller et al." },
+    { "title": "Three.js UnrealBloomPass example", "url": "https://threejs.org/examples/#webgl_postprocessing_unreal_bloom" },
+    { "title": "The Windower's Fireball breakdown", "author": "Various VFX community" }
+  ]
+}

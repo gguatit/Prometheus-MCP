@@ -1,0 +1,56 @@
+{
+  "id": "cyberpunk-dashboard",
+  "name": "Cyberpunk Dashboard UI",
+  "description": "A high-density control dashboard with a neon-on-dark palette, monospace data readouts, glowing borders, scanline/holographic accents, animated data widgets, and a grid-based layout. Cyberpunk aesthetic: cyan/magenta neon, dark background, tech type.",
+  "category": "cyberpunk_dashboard",
+  "domain": "ui-design",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "dark-base", "description": "A near-black background (#0a0e1a-ish) as the base layer; all neon reads against it.", "required": true },
+    { "name": "neon-accent-palette", "description": "A constrained neon palette (cyan + magenta + one warning amber) used consistently for active/highlight states.", "required": true },
+    { "name": "monospace-data-type", "description": "Numeric/data readouts use a monospace font for tabular alignment and tech feel.", "required": true },
+    { "name": "glowing-borders", "description": "Widget panels have thin glowing borders (box-shadow neon glow) rather than flat outlines.", "required": true },
+    { "name": "grid-layout", "description": "A CSS grid (or equivalent) layout organizing widgets into a clear, scannable density.", "required": true },
+    { "name": "live-data-widget", "description": "At least one widget shows live/animated data (sparkline, gauge, or scrolling log).", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "scanlines", "description": "Subtle scanline overlay (repeating-linear-gradient) for CRT/hologram feel; kept low opacity.", "required": false },
+    { "name": "glitch-transition", "description": "Occasional glitch/RGB-split transition on view changes.", "required": false },
+    { "name": "corner-brackets", "description": "L-shaped corner bracket decorations on panels instead of full borders.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "cd-neon-contrast", "dimension": "visual-impact", "description": "Neon accents pop against the dark base with strong luminance contrast.", "weight": 1.0 },
+    { "id": "cd-glow-consistency", "description": "Glow intensity is consistent across widgets of the same priority.", "dimension": "design-consistency", "weight": 0.5 },
+    { "id": "cd-spacing-uniform", "description": "Grid gaps and panel padding are uniform (consistent spacing scale).", "dimension": "design-consistency", "weight": 0.5 },
+    { "id": "cd-data-legible", "dimension": "readability", "description": "Data text is legible (size >=13px, sufficient contrast on dark bg).", "weight": 0.6 },
+    { "id": "cd-label-contrast", "dimension": "readability", "description": "Labels have >=4.5:1 contrast against their background.", "weight": 0.4 },
+    { "id": "cd-widget-anim", "dimension": "animation-quality", "description": "Live widgets animate smoothly (data updates transition, not jump).", "weight": 1.0 },
+    { "id": "cd-semantic-html", "dimension": "technical-quality", "description": "Uses semantic landmarks (header/nav/main/section) not div soup.", "weight": 1.0 },
+    { "id": "cd-viewport", "dimension": "responsiveness", "description": "Layout adapts (grid collapses) on narrow viewports; has a viewport meta tag.", "weight": 1.0 },
+    { "id": "cd-gpu-layers", "dimension": "performance", "description": "Glow/scanlines use transform/opacity compositing, not layout-thrashing box-shadow animation.", "weight": 1.0 },
+    { "id": "cd-css-vars", "dimension": "code-maintainability", "description": "Neon colors and spacing defined as CSS custom properties, not hardcoded everywhere.", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "rainbow-neon", "description": "Using many unrelated neon hues breaks the constrained cyberpunk palette and looks chaotic.", "dimension": "design-consistency" },
+    { "id": "low-contrast-data", "description": "Dim neon data text on dark background fails readability.", "dimension": "readability" },
+    { "id": "animated-boxshadow", "description": "Animating box-shadow for glow triggers layout/paint cost every frame.", "dimension": "performance" },
+    { "id": "hardcoded-colors", "description": "Hex colors inlined per-element makes palette changes impossible.", "dimension": "code-maintainability" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-scanlines", "dimension": "visual-impact", "description": "Add a subtle scanline overlay for holographic depth.", "expectedUplift": 4 },
+    { "id": "add-corner-brackets", "dimension": "design-consistency", "description": "Replace full borders with L-shaped corner brackets for a more authentic HUD look.", "expectedUplift": 5 },
+    { "id": "add-glitch-transitions", "dimension": "animation-quality", "description": "Add occasional glitch transitions on view switches.", "expectedUplift": 3 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Neon panel with glow border",
+      "kind": "html",
+      "snippet": "<section class=\"panel\" role=\"region\" aria-label=\"System status\">\n  <h2 class=\"panel__title\">SYSTEM STATUS</h2>\n  <div class=\"readout\">UPTIME <span data-live>99.97%</span></div>\n</section>"
+    }
+  ],
+  "references": [
+    { "title": "Cyberpunk 2077 UI design language", "author": "CD Projekt Red UI team" },
+    { "title": "Designing Dark Mode — Material Design", "url": "https://m3.material.io/styles/color/dark-theme/overview" }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "motion-graphics",
+  "name": "Motion Graphics",
+  "description": "Kinetic typography and shape animation: text/graphics that animate in with choreographed timing, easing, and stagger; emphasis on rhythm, hierarchy through motion, and a clear focal beat. Built with GSAP/Web Animations or R3F for titles, intros, and explainer segments.",
+  "category": "motion_graphics",
+  "domain": "frontend-animation",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "choreographed-timing", "description": "Elements animate with choreographed timing (stagger/overlap), not all at once.", "required": true },
+    { "name": "easing-curves", "description": "Custom ease curves (ease-out/expo/power) used, never linear for organic motion.", "required": true },
+    { "name": "focal-beat", "description": "A clear focal moment/beat where the eye should land (the message climax).", "required": true },
+    { "name": "hierarchy-through-motion", "description": "Hierarchy conveyed via motion (primary elements lead, secondary trail).", "required": true },
+    { "name": "loop-or-resolve", "description": "The piece either resolves cleanly to a final state or loops seamlessly; no abrupt end.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "kinetic-typography", "description": "Text that transforms/moves expressively (split, scale, slide) to reinforce meaning.", "required": false },
+    { "name": "shape-morph", "description": "Shapes that morph between states to connect ideas.", "required": false },
+    { "name": "sound-sync", "description": "Animation synced to an audio beat/cue.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "mg-stagger", "dimension": "animation-quality", "description": "Stagger/overlap timing creates rhythm, not simultaneous pop.", "weight": 0.4 },
+    { "id": "mg-easing", "dimension": "animation-quality", "description": "Organic easing used throughout; no linear organic motion.", "weight": 0.4 },
+    { "id": "mg-resolve", "dimension": "animation-quality", "description": "Clean resolve or seamless loop; no abrupt cutoff.", "weight": 0.2 },
+    { "id": "mg-focal-clarity", "dimension": "visual-impact", "description": "The focal beat is unambiguous (timing + scale + contrast lead the eye).", "weight": 0.5 },
+    { "id": "mg-type-impact", "dimension": "visual-impact", "description": "Typography has weight and scale presence.", "weight": 0.5 },
+    { "id": "mg-timing-consistency", "dimension": "design-consistency", "description": "Timing/duration values consistent within the piece (one timing scale).", "weight": 1.0 },
+    { "id": "mg-reduced-motion", "dimension": "accessibility", "description": "Respects prefers-reduced-motion (skip to final state).", "weight": 1.0 },
+    { "id": "mg-compositor", "dimension": "performance", "description": "Animations use transform/opacity (compositor), not layout-triggering props.", "weight": 1.0 },
+    { "id": "mg-cleanup", "dimension": "technical-quality", "description": "Animation timelines/observers are killed/disposed when the piece unmounts.", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "all-at-once", "description": "Everything animates simultaneously, killing rhythm and hierarchy.", "dimension": "animation-quality" },
+    { "id": "linear-organic", "description": "Linear easing on organic motion feels robotic.", "dimension": "animation-quality" },
+    { "id": "abrupt-end", "description": "An abrupt cutoff with no resolve feels unfinished.", "dimension": "animation-quality" },
+    { "id": "layout-anim", "description": "Animating width/top/margin triggers layout and jank.", "dimension": "performance" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-kinetic-type", "dimension": "visual-impact", "description": "Add kinetic typography to reinforce the message.", "expectedUplift": 5 },
+    { "id": "add-shape-morph", "dimension": "visual-impact", "description": "Add shape morphing to connect ideas.", "expectedUplift": 4 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Staggered text reveal",
+      "kind": "js",
+      "snippet": "gsap.from(\".line\", { y: 24, opacity: 0, duration: 0.7, ease: \"power3.out\", stagger: 0.12 });"
+    }
+  ],
+  "references": [
+    { "title": "GSAP stagger & timing", "url": "https://gsap.com/docs/v3/GSAP/Tween/stagger/" },
+    { "title": "Disney Animation Principles — Timing & Rhythm", "author": "Johnston & Thomas" }
+  ]
+}

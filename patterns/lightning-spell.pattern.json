@@ -1,0 +1,52 @@
+{
+  "id": "lightning-spell",
+  "name": "Lightning Spell VFX",
+  "description": "A jagged lightning bolt effect: a procedurally jagged line/geometry from origin to target, branching forks, an electric glow, a flash of light, and a sharp crackle sound cue. Uses Three.js Line2 or custom geometry with additive blending.",
+  "category": "lightning_spell",
+  "domain": "vfx",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "jagged-bolt", "description": "A main bolt path from origin to target with midpoints displaced perpendicularly by noise to create jaggedness (>=5 segments).", "required": true },
+    { "name": "branch-forks", "description": "At least 1-2 fork branches that split off the main bolt and terminate early, scaling down.", "required": true },
+    { "name": "electric-glow", "description": "An additive glow sheath around the bolt (a wider, lower-opacity duplicate or a fat-line material).", "required": true },
+    { "name": "impact-flash", "description": "A bright flash at the target endpoint on arrival, expanding and fading within ~150ms.", "required": true },
+    { "name": "short-duration", "description": "The bolt is visible for a short, snappy duration (<=300ms) with rapid fade; lightning is instantaneous, not lingering.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "afterglow-arc", "description": "A faint lingering arc that fades over ~500ms after the bolt disappears.", "required": false },
+    { "name": "ground-scorch", "description": "A decal/scorched texture at the impact point.", "required": false },
+    { "name": "chain-targets", "description": "Lightning arcs to additional nearby targets (chain lightning).", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "ls-jaggedness", "dimension": "visual-impact", "description": "Bolt has visible jagged displacement, not a straight line.", "weight": 0.4 },
+    { "id": "ls-glow-sheath", "dimension": "visual-impact", "description": "Glow sheath gives the bolt volume and electric intensity.", "weight": 0.35 },
+    { "id": "ls-color-electric", "dimension": "visual-impact", "description": "Color reads as electric (white-blue core, blue-violet glow).", "weight": 0.25 },
+    { "id": "ls-snappy-timing", "dimension": "animation-quality", "description": "Bolt appears and fades within the short-duration window; no slow linger.", "weight": 0.6 },
+    { "id": "ls-branch-fade", "dimension": "animation-quality", "description": "Forks fade in sync with or slightly before the main bolt.", "weight": 0.4 },
+    { "id": "ls-geometry-rebuild", "dimension": "technical-quality", "description": "Bolt geometry is rebuilt/regenerated per cast (jaggedness randomized), not a static asset.", "weight": 0.5 },
+    { "id": "ls-disposal", "dimension": "technical-quality", "description": "Bolt geometry/material disposed after fade.", "weight": 0.5 },
+    { "id": "ls-segment-budget", "dimension": "performance", "description": "Segment count bounded (<=24 main, <=8 per fork) to keep line draw cheap.", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "straight-line-bolt", "description": "A perfectly straight line with no jagged displacement reads as a laser, not lightning.", "dimension": "visual-impact" },
+    { "id": "lingering-bolt", "description": "A lightning bolt that stays visible for seconds looks like a beam weapon, breaking the instantaneous feel.", "dimension": "animation-quality" },
+    { "id": "static-bolt-asset", "description": "Reusing one fixed jagged path for every cast looks repetitive; jaggedness should randomize.", "dimension": "technical-quality" },
+    { "id": "too-many-forks", "description": "Excessive forking (>4) clutters and costs perf without improving the read.", "dimension": "performance" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-afterglow", "dimension": "animation-quality", "description": "Add a faint afterglow arc for a more satisfying tail.", "expectedUplift": 3 },
+    { "id": "add-chain", "dimension": "visual-impact", "description": "Add chain-lightning arcing to secondary targets.", "expectedUplift": 5 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Jagged bolt geometry builder",
+      "kind": "js",
+      "snippet": "function buildBolt(start, end, segments, jitter) {\n  const pts = [start.clone()];\n  const dir = end.clone().sub(start);\n  const len = dir.length();\n  const step = dir.clone().multiplyScalar(1 / segments);\n  const perp = new THREE.Vector3(-step.y, step.x, 0).normalize();\n  for (let i = 1; i < segments; i++) {\n    const p = start.clone().add(step.clone().multiplyScalar(i));\n    p.add(perp.clone().multiplyScalar((Math.random() - 0.5) * jitter * len));\n    pts.push(p);\n  }\n  pts.push(end.clone());\n  return new THREE.BufferGeometry().setFromPoints(pts);\n}"
+    }
+  ],
+  "references": [
+    { "title": "Procedural Lightning Generation for Games", "author": "Various" },
+    { "title": "Three.js Line2 / LineMaterial (fat lines)", "url": "https://threejs.org/examples/#webgl_lines_fat" }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "prometheus-mcp",
+  "version": "0.1.0",
+  "description": "Prometheus — a Creative Director MCP that turns ordinary model output into expert-grade creative work.",
+  "type": "module",
+  "license": "MIT",
+  "author": "kalpha",
+  "main": "dist/index.js",
+  "bin": {
+    "prometheus-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint ."
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "ajv": "^8.17.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

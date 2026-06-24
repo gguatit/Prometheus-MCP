@@ -1,0 +1,55 @@
+{
+  "id": "apple-style-ui",
+  "name": "Apple-Style UI",
+  "description": "A minimalist, premium UI in the Apple design language: generous whitespace, a refined neutral palette with a single system accent, SF-like type hierarchy, soft rounded corners, subtle depth via layered translucency, and precise micro-interactions. Calm, confident, legible.",
+  "category": "apple_style_ui",
+  "domain": "ui-design",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "neutral-palette", "description": "A refined neutral palette (whites/grays/near-black) with a single restrained system accent color.", "required": true },
+    { "name": "type-hierarchy", "description": "A clear type hierarchy with large, semibold display headings and regular body; tight letter-spacing on headings.", "required": true },
+    { "name": "generous-whitespace", "description": "Generous, consistent whitespace; content is not crowded.", "required": true },
+    { "name": "rounded-corners", "description": "Soft, consistent rounded corners on cards/buttons/inputs (consistent radius scale).", "required": true },
+    { "name": "subtle-depth", "description": "Depth conveyed subtly via soft shadows or translucency, not heavy borders or harsh gradients.", "required": true },
+    { "name": "micro-interactions", "description": "Subtle, precise micro-interactions (smooth ease, small transform/opacity changes) on hover/press.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "translucency", "description": "A frosted-glass translucent layer (backdrop-filter blur) for bars/sheets.", "required": false },
+    { "name": "large-hero", "description": "A large product hero with centered headline and single CTA.", "required": false },
+    { "name": "sf-symbols", "description": "Consistent line-icon set (SF Symbols style) with uniform stroke weight.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "asu-restraint", "dimension": "visual-impact", "description": "Restraint over decoration; one focal point per view.", "weight": 0.5 },
+    { "id": "asu-type-weight", "dimension": "visual-impact", "description": "Display headings carry the hierarchy via size/weight, not color.", "weight": 0.5 },
+    { "id": "asu-radius-consistency", "dimension": "design-consistency", "description": "Corner radius follows one scale across components.", "weight": 0.5 },
+    { "id": "asu-shadow-consistency", "dimension": "design-consistency", "description": "Shadow tokens consistent; no ad-hoc shadow values.", "weight": 0.5 },
+    { "id": "asu-body-legible", "dimension": "readability", "description": "Body text >=16px, line-height >=1.5, high contrast on light/dark.", "weight": 1.0 },
+    { "id": "asu-ease-curves", "dimension": "animation-quality", "description": "Micro-interactions use ease-out/ease-in-out, never linear; duration 200-350ms.", "weight": 1.0 },
+    { "id": "asu-semantic", "dimension": "technical-quality", "description": "Semantic landmarks and proper heading order.", "weight": 1.0 },
+    { "id": "asu-viewport", "dimension": "responsiveness", "description": "Layout adapts with the viewport; fluid type/spacing.", "weight": 1.0 },
+    { "id": "asu-reduced-motion", "dimension": "accessibility", "description": "Respects prefers-reduced-motion for micro-interactions.", "weight": 1.0 },
+    { "id": "asu-tokens", "dimension": "code-maintainability", "description": "Color/radius/shadow/spacing as design tokens (CSS vars).", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "cluttered-dense", "description": "Crowded content and small spacing breaks the calm premium feel.", "dimension": "visual-impact" },
+    { "id": "harsh-borders", "description": "Hard 1px borders everywhere reads as cheap; prefer subtle depth.", "dimension": "design-consistency" },
+    { "id": "linear-motion", "description": "Linear easing on interactions feels mechanical, not premium.", "dimension": "animation-quality" },
+    { "id": "ignores-reduced-motion", "description": "Animating regardless of prefers-reduced-motion harms accessibility.", "dimension": "accessibility" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-translucency", "dimension": "visual-impact", "description": "Add a frosted translucent bar/sheet for layered depth.", "expectedUplift": 4 },
+    { "id": "tighten-type", "dimension": "readability", "description": "Tighten heading letter-spacing and increase display size for stronger hierarchy.", "expectedUplift": 3 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Premium card with subtle depth",
+      "kind": "html",
+      "snippet": "<article class=\"card\">\n  <h3 class=\"card__title\">Design Tokens</h3>\n  <p class=\"card__body\">A single source of truth for color, radius, and shadow.</p>\n  <button class=\"btn\" type=\"button\">Learn more</button>\n</article>"
+    }
+  ],
+  "references": [
+    { "title": "Apple Human Interface Guidelines — Visual Design", "url": "https://developer.apple.com/design/human-interface-guidelines/visual-design" },
+    { "title": "Refactoring UI", "author": "Wathan & Schoger" }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "sci-fi-hud",
+  "name": "Sci-Fi HUD",
+  "description": "A heads-up display overlay: reticles, targeting brackets, status readouts, a minimap/radar, and animated telemetry, all in a holographic neon-on-transparent style anchored to screen edges. Diegetic, non-obstructive, with bracketed corners and grid lines.",
+  "category": "sci_fi_hud",
+  "domain": "ui-design",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "reticle", "description": "A central reticle/crosshair indicating focus or aim.", "required": true },
+    { "name": "targeting-brackets", "description": "L-shaped corner brackets that frame targets or panels, not full rectangles.", "required": true },
+    { "name": "status-readouts", "description": "Edge-anchored status readouts (hull/shields/velocity) in monospace, updated live.", "required": true },
+    { "name": "minimap-radar", "description": "A radar/minimap element with a sweeping rotation animation and blips.", "required": true },
+    { "name": "edge-anchored", "description": "HUD elements anchored to screen edges/corners, leaving the center view clear.", "required": true },
+    { "name": "holo-palette", "description": "A holographic palette (cyan/green neon) on a translucent/transparent base, not opaque panels.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "scan-sweep", "description": "A radar sweep line rotating continuously.", "required": false },
+    { "name": "damage-indicators", "description": "Directional damage indicators flashing on hit.", "required": false },
+    { "name": "compass-strip", "description": "A top compass strip showing heading.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "hud-center-clear", "dimension": "user-experience", "description": "Center of the view is kept clear of obstructive HUD.", "weight": 0.5 },
+    { "id": "hud-glanceable", "dimension": "user-experience", "description": "Status readouts are glanceable (size/contrast) without focus shift.", "weight": 0.5 },
+    { "id": "hud-bracket-aesthetic", "dimension": "visual-impact", "description": "Corner brackets and thin lines convey the sci-fi diegetic look.", "weight": 1.0 },
+    { "id": "hud-consistency", "dimension": "design-consistency", "description": "Line weights, glow, and corner style consistent across all HUD elements.", "weight": 1.0 },
+    { "id": "hud-readout-contrast", "dimension": "readability", "description": "Readout text >=4.5:1 contrast against the (variable) scene behind.", "weight": 1.0 },
+    { "id": "hud-sweep-smooth", "dimension": "animation-quality", "description": "Radar sweep and live values animate smoothly.", "weight": 0.5 },
+    { "id": "hud-no-obscure", "dimension": "animation-quality", "description": "Animations don't strobe or obscure gameplay.", "weight": 0.5 },
+    { "id": "hud-overlay-fixed", "dimension": "technical-quality", "description": "HUD is a fixed overlay (position fixed) above the scene, pointer-events none except interactive widgets.", "weight": 1.0 },
+    { "id": "hud-gpu", "dimension": "performance", "description": "Glow/scanlines composited via transform/opacity, cheap to render.", "weight": 1.0 },
+    { "id": "hud-vars", "dimension": "code-maintainability", "description": "HUD color/glow tokens as CSS vars.", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "opaque-panels", "description": "Opaque HUD panels block the view; HUD should be translucent/edge-anchored.", "dimension": "user-experience" },
+    { "id": "center-clutter", "description": "Placing readouts/widgets in the screen center obstructs the view.", "dimension": "user-experience" },
+    { "id": "strobe-anim", "description": "Fast strobing animations are distracting and inaccessible.", "dimension": "accessibility" },
+    { "id": "full-rect-frames", "description": "Full rectangle frames around everything looks like a normal UI, not a diegetic HUD.", "dimension": "visual-impact" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-damage-indicators", "dimension": "user-experience", "description": "Add directional damage indicators.", "expectedUplift": 4 },
+    { "id": "add-compass", "dimension": "user-experience", "description": "Add a top compass strip for spatial awareness.", "expectedUplift": 3 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Edge-anchored HUD overlay",
+      "kind": "html",
+      "snippet": "<div class=\"hud\" aria-hidden=\"true\">\n  <div class=\"hud__reticle\"></div>\n  <div class=\"hud__readout hud__readout--bl\">HULL <span data-live>87%</span></div>\n  <div class=\"hud__radar\"><div class=\"hud__sweep\"></div></div>\n</div>"
+    }
+  ],
+  "references": [
+    { "title": "Diegetic HUD design in sci-fi games", "author": "Various UI artists" },
+    { "title": "Halo / Destiny HUD design analyses", "author": "Community writeups" }
+  ]
+}

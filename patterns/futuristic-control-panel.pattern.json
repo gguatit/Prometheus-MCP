@@ -1,0 +1,54 @@
+{
+  "id": "futuristic-control-panel",
+  "name": "Futuristic Control Panel",
+  "description": "A dense interactive control panel with tactile switches, sliders, toggles, gauges, and a segmented status display, in a sleek futuristic industrial aesthetic. Emphasis on clear affordance, grouped controls, and live feedback on every interaction.",
+  "category": "futuristic_control_panel",
+  "domain": "ui-design",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "grouped-controls", "description": "Controls grouped into logical sections with labels (e.g., Power, Navigation, Diagnostics).", "required": true },
+    { "name": "tactile-affordance", "description": "Each control (switch/slider/toggle) has a clear tactile affordance and current state readout.", "required": true },
+    { "name": "live-feedback", "description": "Every interaction gives immediate live feedback (value change, state glow, gauge needle move).", "required": true },
+    { "name": "gauges", "description": "At least one analog-style gauge or meter showing a continuous value.", "required": true },
+    { "name": "segmented-display", "description": "A segmented/7-segment-style numeric display for key readouts, reinforcing the industrial aesthetic.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "master-arming", "description": "A master arm/enable switch that gates other controls (safety pattern).", "required": false },
+    { "name": "warning-states", "description": "Threshold-based warning/critical color states on gauges.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "fcp-grouping", "dimension": "user-experience", "description": "Controls are grouped logically with clear section labels.", "weight": 0.4 },
+    { "id": "fcp-affordance", "dimension": "user-experience", "description": "Each control's type and state are immediately readable.", "weight": 0.3 },
+    { "id": "fcp-feedback", "dimension": "user-experience", "description": "Live feedback on every interaction; no dead controls.", "weight": 0.3 },
+    { "id": "fcp-gauge-read", "dimension": "visual-impact", "description": "Gauges read current value at a glance (needle + numeric).", "weight": 0.5 },
+    { "id": "fcp-segmented", "dimension": "visual-impact", "description": "Segmented displays reinforce the industrial aesthetic.", "weight": 0.5 },
+    { "id": "fcp-consistency", "dimension": "design-consistency", "description": "Control styling, spacing, and state colors consistent across the panel.", "weight": 1.0 },
+    { "id": "fcp-value-contrast", "dimension": "readability", "description": "Value readouts have high contrast against panel backgrounds.", "weight": 1.0 },
+    { "id": "fcp-control-semantics", "dimension": "accessibility", "description": "Interactive controls are real buttons/inputs with focusable state and aria labels.", "weight": 0.5 },
+    { "id": "fcp-keyboard", "dimension": "accessibility", "description": "All controls operable via keyboard (tab + space/enter/arrows).", "weight": 0.5 },
+    { "id": "fcp-no-layout-thrash", "dimension": "performance", "description": "Gauge/value updates don't trigger layout (transform/opacity only).", "weight": 1.0 },
+    { "id": "fcp-tokens", "dimension": "code-maintainability", "description": "State colors and spacing as design tokens.", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "dead-controls", "description": "Controls that don't respond or show state feel broken.", "dimension": "user-experience" },
+    { "id": "unclear-state", "description": "Toggles/switches with no visible on/off state confuse the operator.", "dimension": "user-experience" },
+    { "id": "div-buttons", "description": "Interactive controls as divs without focus/keyboard support fail accessibility.", "dimension": "accessibility" },
+    { "id": "gauge-layout-thrash", "description": "Gauges that animate via width/layout cause repaint cost.", "dimension": "performance" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-warning-states", "dimension": "user-experience", "description": "Add threshold-based warning/critical color states on gauges.", "expectedUplift": 5 },
+    { "id": "add-master-arm", "dimension": "user-experience", "description": "Add a master arm switch gating dangerous controls.", "expectedUplift": 4 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Tactile toggle with state",
+      "kind": "html",
+      "snippet": "<label class=\"switch\">\n  <input type=\"checkbox\" role=\"switch\" aria-checked=\"false\">\n  <span class=\"switch__track\"></span>\n  <span class=\"switch__readout\">OFF</span>\n</label>"
+    }
+  ],
+  "references": [
+    { "title": "Industrial control panel UX patterns", "author": "Various" },
+    { "title": "WAI-ARIA switch pattern", "url": "https://www.w3.org/WAI/ARIA/apg/patterns/switch/" }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "game-skill-effect",
+  "name": "Game Skill Effect",
+  "description": "A player-activated combat skill effect: a clear windup telegraph, a peak impact moment with screen feedback, and a recovery/fade. Conveys cause, hit-stop, and weight. Built for real-time game engines or R3F with frame-budget consciousness.",
+  "category": "game_skill_effect",
+  "domain": "game-development",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "windup-telegraph", "description": "A short windup (~150-400ms) that telegraphs the skill is coming (charge glow, stance, anticipation).", "required": true },
+    { "name": "impact-peak", "description": "A clear peak impact moment at the release/hit with maximum visual intensity (flash, particles, shake).", "required": true },
+    { "name": "recovery-fade", "description": "A recovery phase where the effect fades/dissipates; not an instant cutoff.", "required": true },
+    { "name": "screen-feedback", "description": "Screen-level feedback at impact (subtle camera shake, flash, or vignette pulse) to sell weight.", "required": true },
+    { "name": "cooldown-read", "description": "The skill state is readable (cooldown indicator/charge state) so gameplay reads clearly.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "hit-stop", "description": "A brief hit-stop (time scale to ~0 for 40-80ms) at impact to amplify weight.", "required": false },
+    { "name": "charge-level", "description": "A charge-level visual that grows with hold duration for charged skills.", "required": false },
+    { "name": "target-impact-decal", "description": "A decal/mark at the struck target on hit.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "gse-anticipation", "dimension": "animation-quality", "description": "Windup provides anticipation; the eye expects the impact.", "weight": 0.4 },
+    { "id": "gse-impact-weight", "dimension": "animation-quality", "description": "Impact has weight via timing + screen feedback.", "weight": 0.4 },
+    { "id": "gse-recovery", "dimension": "animation-quality", "description": "Recovery dissipates naturally, no hard cutoff.", "weight": 0.2 },
+    { "id": "gse-silhouette", "dimension": "visual-impact", "description": "Effect silhouette reads clearly against the scene (contrast, scale).", "weight": 1.0 },
+    { "id": "gse-frame-budget", "dimension": "performance", "description": "Effect stays within a frame budget (bounded particles, no per-frame alloc).", "weight": 1.0 },
+    { "id": "gse-disposal", "dimension": "technical-quality", "description": "Effect resources disposed after recovery.", "weight": 1.0 },
+    { "id": "gse-state-readable", "dimension": "user-experience", "description": "Skill state/cooldown is readable to the player.", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "no-windup", "description": "Instant impact with no windup lacks anticipation and feels weightless.", "dimension": "animation-quality" },
+    { "id": "instant-cutoff", "description": "Hard disappearance with no recovery feels buggy.", "dimension": "animation-quality" },
+    { "id": "excessive-shake", "description": "Strong/long camera shake causes discomfort.", "dimension": "user-experience" },
+    { "id": "unbounded-particles", "description": "Particle counts that scale without a cap spike frame time.", "dimension": "performance" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-hit-stop", "dimension": "animation-quality", "description": "Add a brief hit-stop at impact for weight.", "expectedUplift": 5 },
+    { "id": "add-charge-level", "dimension": "user-experience", "description": "Add a charge-level visual for charged skills.", "expectedUplift": 4 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Skill phase timeline",
+      "kind": "js",
+      "snippet": "const SKILL = { windup: 0.25, impact: 0.05, recovery: 0.4 };\nfunction update(t) {\n  if (t < SKILL.windup) setChargeGlow(t / SKILL.windup);\n  else if (t < SKILL.windup + SKILL.impact) triggerImpact();\n  else fadeOut((t - SKILL.windup - SKILL.impact) / SKILL.recovery);\n}"
+    }
+  ],
+  "references": [
+    { "title": "The Art of Game Effects animation", "author": "Various game FX artists" },
+    { "title": "Disney Animation Principles — Anticipation & Follow-Through", "author": "Johnston & Thomas" }
+  ]
+}

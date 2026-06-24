@@ -1,0 +1,50 @@
+{
+  "id": "magic-circle",
+  "name": "Magic Circle",
+  "description": "A rotating arcane circle on the ground/air: concentric glowing rings, runic glyphs, a slow rotation with counter-rotating layers, an inner glow, and a summon/activation pulse. Built with Three.js ring geometry + additive blending + a texture or shader for runes.",
+  "category": "magic_circle",
+  "domain": "vfx",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "concentric-rings", "description": "At least 2-3 concentric glowing rings of varying radius forming the circle structure.", "required": true },
+    { "name": "runic-glyphs", "description": "Runic/symbolic glyphs placed around a ring (texture-mapped or instanced) for arcane feel.", "required": true },
+    { "name": "counter-rotation", "description": "Layers rotate at different speeds and directions (counter-rotating) for a living mechanism.", "required": true },
+    { "name": "inner-glow", "description": "An inner radial glow/aura at the circle center.", "required": true },
+    { "name": "activation-pulse", "description": "A pulse/flash on activation (summon moment) that expands outward and settles.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "rising-particles", "description": "Spark particles rising from the ring edges.", "required": false },
+    { "name": "ground-decal", "description": "A faint ground decal beneath the circle for grounding.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "mc-ring-clarity", "dimension": "visual-impact", "description": "Rings read clearly as concentric circles with even spacing.", "weight": 0.4 },
+    { "id": "mc-glyph-legibility", "dimension": "visual-impact", "description": "Glyphs are visible and evenly distributed, not cluttered.", "weight": 0.3 },
+    { "id": "mc-aura-depth", "dimension": "visual-impact", "description": "Inner glow gives the circle depth, not flat.", "weight": 0.3 },
+    { "id": "mc-rotation-smooth", "dimension": "animation-quality", "description": "Rotation is smooth and continuous, counter-rotating layers visible.", "weight": 0.6 },
+    { "id": "mc-pulse-timing", "dimension": "animation-quality", "description": "Activation pulse has clear anticipation and settle.", "weight": 0.4 },
+    { "id": "mc-additive", "dimension": "technical-quality", "description": "Rings use additive blending and depthWrite=false for proper glow overlap.", "weight": 0.6 },
+    { "id": "mc-disposal", "dimension": "technical-quality", "description": "Ring geometry/material disposed on dispel.", "weight": 0.4 },
+    { "id": "mc-ring-budget", "dimension": "performance", "description": "Ring segment count bounded; rotation via quaternion not rebuild.", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "single-static-ring", "description": "One flat static ring with no rotation or glyphs looks like a decal, not magic.", "dimension": "visual-impact" },
+    { "id": "synced-rotation", "description": "All layers rotating the same speed/direction looks like one object, not a mechanism.", "dimension": "animation-quality" },
+    { "id": "depth-write-on", "description": "Leaving depthWrite=true on additive rings causes z-fighting/sorting artifacts.", "dimension": "technical-quality" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-rising-sparks", "dimension": "visual-impact", "description": "Add rising spark particles from the ring for life.", "expectedUplift": 4 },
+    { "id": "add-ground-decal", "dimension": "visual-impact", "description": "Add a faint ground decal to ground the circle in the scene.", "expectedUplift": 3 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Counter-rotating rings",
+      "kind": "jsx",
+      "snippet": "<group>\n  <mesh rotation={[-Math.PI/2,0,0]}>\n    <ringGeometry args={[0.8,1,64]} />\n    <meshBasicMaterial color=\"#7fdfff\" blending={THREE.AdditiveBlending} transparent depthWrite={false} />\n  </mesh>\n  <mesh ref={inner} rotation={[-Math.PI/2,0,0]}>\n    <ringGeometry args={[0.5,0.55,48]} />\n    <meshBasicMaterial color=\"#bfefff\" blending={THREE.AdditiveBlending} transparent depthWrite={false} />\n  </mesh>\n</group>"
+    }
+  ],
+  "references": [
+    { "title": "Anime magic circle FX breakdowns", "author": "VFX community" },
+    { "title": "Three.js ringGeometry docs", "url": "https://threejs.org/docs/#api/en/geometries/RingGeometry" }
+  ]
+}

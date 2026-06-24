@@ -1,0 +1,52 @@
+{
+  "id": "glassmorphism-ui",
+  "name": "Glassmorphism UI",
+  "description": "A frosted-glass aesthetic: translucent layered panels with backdrop-filter blur, subtle light/border gradients, soft shadows, and floating depth. Content sits on blurred backdrops with a consistent translucency and border-light treatment.",
+  "category": "glassmorphism_ui",
+  "domain": "ui-design",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "backdrop-blur", "description": "Panels use backdrop-filter: blur() to frost the content behind them.", "required": true },
+    { "name": "translucent-fill", "description": "Semi-transparent (rgba) panel fills, not opaque, so the blurred backdrop shows through.", "required": true },
+    { "name": "border-light", "description": "A subtle 1px light translucent border (often top/left light edge) to define the glass edge.", "required": true },
+    { "name": "soft-shadow", "description": "Soft, diffuse drop shadows to lift the glass off the background.", "required": true },
+    { "name": "layered-depth", "description": "Multiple glass layers at different depths to create the floating layered composition.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "gradient-glow", "description": "A subtle colorful gradient glow behind/within the glass for richness.", "required": false },
+    { "name": "noise-texture", "description": "A faint noise/grain texture overlay to avoid banding in the blur.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "gm-blur-strength", "dimension": "visual-impact", "description": "Blur radius is strong enough to read as frosted glass (>=8px), not barely-there.", "weight": 0.4 },
+    { "id": "gm-edge-light", "dimension": "visual-impact", "description": "Border-light defines the glass edge crisply.", "weight": 0.3 },
+    { "id": "gm-layering", "dimension": "visual-impact", "description": "Layered glass creates real depth.", "weight": 0.3 },
+    { "id": "gm-translucency-consistency", "dimension": "design-consistency", "description": "Translucency/blur values consistent across same-depth panels.", "weight": 1.0 },
+    { "id": "gm-text-contrast", "dimension": "readability", "description": "Text on glass maintains >=4.5:1 contrast (often needs a scrim behind text).", "weight": 1.0 },
+    { "id": "gm-blur-fallback", "dimension": "accessibility", "description": "Provides a solid fallback where backdrop-filter is unsupported (no transparent unreadable text).", "weight": 0.5 },
+    { "id": "gm-reduced-transparency", "dimension": "accessibility", "description": "Respects prefers-reduced-transparency / prefers-contrast.", "weight": 0.5 },
+    { "id": "gm-gpu-compositing", "dimension": "performance", "description": "Backdrop-filter is GPU-composited; avoid stacking too many large blurred layers (perf cost).", "weight": 1.0 },
+    { "id": "gm-tokens", "dimension": "code-maintainability", "description": "Blur, translucency, and shadow as tokens.", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "low-blur", "description": "Blur radius too low (<6px) reads as a smudge, not glass.", "dimension": "visual-impact" },
+    { "id": "unreadable-on-glass", "description": "Text directly on translucent glass without a scrim can fail contrast.", "dimension": "readability" },
+    { "id": "no-fallback", "description": "No fallback for unsupported backdrop-filter leaves invisible/unreadable panels.", "dimension": "accessibility" },
+    { "id": "stacked-blur-overload", "description": "Many large stacked blurred layers tank performance.", "dimension": "performance" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-gradient-glow", "dimension": "visual-impact", "description": "Add a subtle colorful gradient glow for richness.", "expectedUplift": 4 },
+    { "id": "add-noise", "dimension": "visual-impact", "description": "Add faint noise to avoid blur banding.", "expectedUplift": 2 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Glass panel",
+      "kind": "html",
+      "snippet": "<section class=\"glass\">\n  <h3>Sensors</h3>\n  <p>Live telemetry, frosted for focus.</p>\n</section>"
+    }
+  ],
+  "references": [
+    { "title": "Glassmorphism — origins and guidelines", "author": "Michal Malewicz" },
+    { "title": "MDN: backdrop-filter", "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter" }
+  ]
+}

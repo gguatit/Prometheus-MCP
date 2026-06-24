@@ -1,0 +1,54 @@
+{
+  "id": "interactive-hero-section",
+  "name": "Interactive Hero Section",
+  "description": "A hero section with a pointer/reactive interactive element (parallax, mouse-follow 3D tilt, scroll-linked, or particle field) layered with a strong headline and CTA. The interaction invites engagement without distracting from the value proposition and CTA.",
+  "category": "interactive_hero_section",
+  "domain": "web-design",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "reactive-element", "description": "A reactive element that responds to pointer/scroll (parallax, tilt, or particle field).", "required": true },
+    { "name": "headline-overlay", "description": "A headline + subhead overlaid on the interactive element with strong contrast legibility.", "required": true },
+    { "name": "primary-cta", "description": "A primary CTA that remains obvious and clickable atop the interaction.", "required": true },
+    { "name": "legibility-scrim", "description": "A scrim/gradient behind text guaranteeing legibility regardless of the interactive state behind it.", "required": true },
+    { "name": "interaction-invites", "description": "The interaction subtly invites engagement (a gentle idle motion) so users know it's interactive.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "scroll-cue", "description": "A scroll cue indicating there's more below.", "required": false },
+    { "name": "reduced-motion-static", "description": "A static fallback hero for prefers-reduced-motion.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "ihs-reactivity", "dimension": "animation-quality", "description": "Reaction is smooth and responsive (low latency, eased, no jitter).", "weight": 0.5 },
+    { "id": "ihs-idle-invite", "dimension": "animation-quality", "description": "A gentle idle motion invites interaction without being noisy.", "weight": 0.5 },
+    { "id": "ihs-headline-impact", "dimension": "visual-impact", "description": "Headline has scale/weight and is the focal point over the interaction.", "weight": 0.5 },
+    { "id": "ihs-depth", "dimension": "visual-impact", "description": "Parallax/tilt creates perceived depth.", "weight": 0.5 },
+    { "id": "ihs-text-contrast", "dimension": "readability", "description": "Headline legibility guaranteed by scrim (>=4.5:1) in all interactive states.", "weight": 1.0 },
+    { "id": "ihs-cta-obvious", "dimension": "user-experience", "description": "CTA stays obvious/clickable; interaction never blocks the CTA.", "weight": 1.0 },
+    { "id": "ihs-reduced-motion", "dimension": "accessibility", "description": "Provides a static fallback for prefers-reduced-motion.", "weight": 0.6 },
+    { "id": "ihs-pointer-cancel", "dimension": "accessibility", "description": "Interaction works with pointer/touch and degrades when no pointer (keyboard nav unaffected).", "weight": 0.4 },
+    { "id": "ihs-semantic", "dimension": "technical-quality", "description": "Hero uses a <header>/<section> with a single h1.", "weight": 0.5 },
+    { "id": "ihs-raf-throttle", "dimension": "performance", "description": "Pointer/scroll handlers throttled to rAF; no per-event heavy work.", "weight": 1.0 },
+    { "id": "ihs-cleanup", "dimension": "technical-quality", "description": "Event listeners and rAF loops removed on unmount.", "weight": 0.5 }
+  ],
+  "antiPatterns": [
+    { "id": "distracting-interaction", "description": "Interaction so busy it distracts from the headline/CTA.", "dimension": "user-experience" },
+    { "id": "illegible-on-motion", "description": "Text that loses contrast when the interactive background changes.", "dimension": "readability" },
+    { "id": "blocked-cta", "description": "Interaction layer intercepts pointer events on the CTA.", "dimension": "user-experience" },
+    { "id": "per-event-heavy", "description": "Heavy work on every pointermove/scroll event causes jank.", "dimension": "performance" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-scroll-cue", "dimension": "user-experience", "description": "Add a scroll cue to indicate more content below.", "expectedUplift": 3 },
+    { "id": "add-static-fallback", "dimension": "accessibility", "description": "Add a static reduced-motion fallback hero.", "expectedUplift": 4 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Pointer parallax with rAF throttle",
+      "kind": "js",
+      "snippet": "let raf = 0;\nonpointermove = (e) => {\n  if (raf) return;\n  raf = requestAnimationFrame(() => {\n    const x = (e.clientX / innerWidth - 0.5) * 20;\n    layer.style.transform = `translate3d(${x}px,0,0)`;\n    raf = 0;\n  });\n};"
+    }
+  ],
+  "references": [
+    { "title": "Interactive hero design patterns", "author": "Various Awwwards case studies" },
+    { "title": "prefers-reduced-motion guidance", "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion" }
+  ]
+}

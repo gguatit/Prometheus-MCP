@@ -1,0 +1,59 @@
+{
+  "id": "modern-landing-page",
+  "name": "Modern Landing Page",
+  "description": "A high-conversion marketing landing page: a hero with a clear value proposition and primary CTA, social proof, a benefits/features section, and a conversion-focused footer. Uses a clean modern type system, generous whitespace, and a single accent color.",
+  "category": "modern_landing_page",
+  "domain": "web-design",
+  "version": "1.0.0",
+  "provenance": { "source": "internal", "trust": "internal", "fetchedAt": "2026-01-01T00:00:00.000Z", "author": "Prometheus team" },
+  "requiredElements": [
+    { "name": "hero-value-prop", "description": "A hero section with a concise headline stating the core value proposition (<=12 words).", "required": true },
+    { "name": "primary-cta", "description": "One obvious primary call-to-action button in the hero (above the fold) with a contrasting accent color.", "required": true },
+    { "name": "social-proof", "description": "Social proof: testimonials, logo bar, or trust metrics near or below the hero.", "required": true },
+    { "name": "benefits-section", "description": "A benefits/features section with 3-6 items, each a clear benefit (outcome) not just a feature.", "required": true },
+    { "name": "viewport-meta", "description": "A responsive viewport meta tag so the page scales on mobile.", "required": true },
+    { "name": "single-accent", "description": "A single accent/brand color used consistently for CTAs and highlights; rest of palette neutral.", "required": true }
+  ],
+  "optionalElements": [
+    { "name": "sticky-header", "description": "A sticky header that keeps the CTA reachable while scrolling.", "required": false },
+    { "name": "pricing-table", "description": "A pricing/comparison table for products with multiple tiers.", "required": false },
+    { "name": "faq", "description": "An FAQ section answering common objections before the final CTA.", "required": false },
+    { "name": "final-cta", "description": "A final closing CTA section before the footer reinforcing the primary action.", "required": false }
+  ],
+  "qualityRules": [
+    { "id": "mlp-hero-clarity", "dimension": "visual-impact", "description": "Hero value prop is the first thing the eye lands on (size/weight hierarchy).", "weight": 0.4 },
+    { "id": "mlp-whitespace", "dimension": "visual-impact", "description": "Generous whitespace; sections breathe, not cramped.", "weight": 0.3 },
+    { "id": "mlp-cta-contrast", "dimension": "visual-impact", "description": "Primary CTA stands out via accent color and size against neutrals.", "weight": 0.3 },
+    { "id": "mlp-type-scale", "dimension": "design-consistency", "description": "A consistent type scale and single heading font family throughout.", "weight": 0.5 },
+    { "id": "mlp-spacing-scale", "dimension": "design-consistency", "description": "Section padding and gaps follow a consistent spacing scale.", "weight": 0.5 },
+    { "id": "mlp-headline-legible", "dimension": "readability", "description": "Body copy >=16px with comfortable line-height (>=1.5).", "weight": 0.5 },
+    { "id": "mlp-contrast-ratio", "dimension": "readability", "description": "Text contrast >=4.5:1 against backgrounds.", "weight": 0.5 },
+    { "id": "mlp-cta-feedback", "dimension": "user-experience", "description": "CTA has hover/focus/active states and clear affordance.", "weight": 1.0 },
+    { "id": "mlp-semantic", "dimension": "technical-quality", "description": "Uses semantic landmarks (header/main/section/footer) and a single h1.", "weight": 1.0 },
+    { "id": "mlp-viewport", "dimension": "responsiveness", "description": "Layout reflows on mobile (single-column, readable, no horizontal scroll).", "weight": 1.0 },
+    { "id": "mlp-img-sizes", "dimension": "performance", "description": "Images use width/height or aspect-ratio to prevent CLS; lazy-loaded below the fold.", "weight": 1.0 },
+    { "id": "mlp-css-vars", "dimension": "code-maintainability", "description": "Colors/spacing as CSS custom properties.", "weight": 1.0 }
+  ],
+  "antiPatterns": [
+    { "id": "multiple-ctas-hero", "description": "Multiple competing primary CTAs in the hero dilute the action.", "dimension": "user-experience" },
+    { "id": "feature-dump", "description": "Listing raw features instead of benefits (outcomes) fails to persuade.", "dimension": "user-experience" },
+    { "id": "tiny-body-text", "description": "Body text below 16px hurts readability.", "dimension": "readability" },
+    { "id": "horizontal-scroll-mobile", "description": "Fixed widths causing horizontal scroll on mobile.", "dimension": "responsiveness" }
+  ],
+  "improvementSuggestions": [
+    { "id": "add-final-cta", "dimension": "user-experience", "description": "Add a closing CTA section to capture users who scrolled to the end.", "expectedUplift": 6 },
+    { "id": "add-faq", "dimension": "user-experience", "description": "Add an FAQ to address objections before the final CTA.", "expectedUplift": 4 },
+    { "id": "add-sticky-header", "dimension": "user-experience", "description": "Make the header sticky so the CTA stays reachable.", "expectedUplift": 3 }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Hero with value prop + CTA",
+      "kind": "html",
+      "snippet": "<header class=\"hero\">\n  <h1>Ship creative work that feels designed, not generated.</h1>\n  <p class=\"hero__sub\">An AI creative director that critiques and improves your artifacts to a target quality score.</p>\n  <a class=\"btn btn--primary\" href=\"#start\">Start free</a>\n</header>"
+    }
+  ],
+  "references": [
+    { "title": "Landing Page Design Best Practices", "author": "Conversion optimization literature" },
+    { "title": "Refactoring UI — hierarchy & whitespace", "author": "Adam Wathan, Steve Schoger" }
+  ]
+}
