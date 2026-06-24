@@ -55,6 +55,9 @@ export class Orchestrator {
     let lastCritique: Critique | undefined;
     let lastArtifact: Artifact | undefined;
     let next: import("../types/index.js").LoopState = "collect";
+    let pendingRevision: RevisionPrompt | undefined;
+    let pendingPlan: ImprovementPlan | undefined;
+    void pendingPlan;
 
     const span = this.tracer.start("orchestrator.run", { sessionId: session.id, briefId: brief.id });
 
@@ -88,7 +91,7 @@ export class Orchestrator {
             session.providerUsed = provider.id;
             if (pattern && !session.patternIds.includes(pattern.id)) session.patternIds.push(pattern.id);
 
-            const req = this.buildRequest(brief, provider.id, pattern, knowledgeData, lastCritique, session.iterations.length);
+            const req = this.buildRequest(brief, provider.id, pattern, knowledgeData, lastCritique, session.iterations.length, pendingRevision);
             const gen = await this.callProvider(provider, req, session);
             lastArtifact = gen.artifact;
             next = "evidence";
@@ -121,9 +124,8 @@ export class Orchestrator {
           case "improve": {
             if (!lastArtifact || !lastCritique) { next = "finalize"; break; }
             const { plan, revision } = await this.improver.improve(lastArtifact, lastCritique, { pattern, memory: this.memory });
-            // stash revision for the next generate step
-            this.pendingRevision = revision;
-            this.pendingPlan = plan;
+            pendingRevision = revision;
+            pendingPlan = plan;
             next = "decide";
             break;
           }
@@ -166,9 +168,6 @@ export class Orchestrator {
     }
   }
 
-  private pendingRevision?: RevisionPrompt;
-  private pendingPlan?: ImprovementPlan;
-
   private reasoningProvider(): IProvider | undefined {
     if (!this.config.enableLLMReasoning) return undefined;
     // use any non-stub, reasoning-capable provider that is available
@@ -187,6 +186,7 @@ export class Orchestrator {
     knowledgeData: string,
     lastCritique: Critique | undefined,
     iteration: number,
+    pendingRevision: RevisionPrompt | undefined,
   ): GenerationRequest {
     const expectedKind = this.kindForDomain(brief.domain);
     const sysParts: string[] = ["You are an expert creative engineer producing production-ready artifacts."];
@@ -195,11 +195,11 @@ export class Orchestrator {
 
     let userPrompt = `Intent: ${brief.intent}\nConstraints: ${brief.constraints.join("; ") || "(none)"}\nProduce a complete ${expectedKind} artifact.`;
     if (lastCritique) userPrompt += `\n\nPrevious score: ${lastCritique.aggregateScore}/100. Address: ${lastCritique.suggestions.slice(0, 5).map((s) => s.description).join("; ")}.`;
-    if (this.pendingRevision) {
+    if (pendingRevision) {
       return {
         providerId,
-        systemPrompt: this.pendingRevision.systemPrompt,
-        userPrompt: this.pendingRevision.userPrompt,
+        systemPrompt: pendingRevision.systemPrompt,
+        userPrompt: pendingRevision.userPrompt,
         expectedKind,
         temperature: 0.6,
         patternId: pattern?.id,
@@ -218,7 +218,8 @@ export class Orchestrator {
   }
 
   private kindForDomain(domain: CreativeBrief["domain"]): GenerationRequest["expectedKind"] {
-    if (domain === "three-js" || domain === "react-three-fiber" || domain === "vfx" || domain === "frontend-animation" || domain === "game-development") return "js";
+    if (domain === "react-three-fiber") return "jsx";
+    if (domain === "three-js" || domain === "vfx" || domain === "frontend-animation" || domain === "game-development") return "js";
     if (domain === "ui-design" || domain === "web-design") return "html";
     return "html";
   }

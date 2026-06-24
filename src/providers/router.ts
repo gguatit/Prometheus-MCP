@@ -37,17 +37,17 @@ export class ProviderRouter {
 
   /** Select by hints + required capabilities; fall back to default. */
   select(hints: ProviderHint[] = [], requireVision = false, requireStreaming = false, requireStructured = false): IProvider {
-    // explicit hint
-    const explicit = hints.find((h) => h.providerId);
-    if (explicit?.providerId) {
-      const p = this.providers.get(explicit.providerId);
-      if (p) return p;
-    }
-
     const requireV = requireVision || hints.some((h) => h.requireVision);
     const requireS = requireStreaming || hints.some((h) => h.requireStreaming);
     const requireSt = requireStructured || hints.some((h) => h.requireStructuredOutput);
     const preferLowCost = hints.some((h) => h.preferLowCost);
+
+    // explicit hint — verify capability requirements before accepting
+    const explicit = hints.find((h) => h.providerId);
+    if (explicit?.providerId) {
+      const p = this.providers.get(explicit.providerId);
+      if (p && meets(p.capabilities, requireV, requireS, requireSt)) return p;
+    }
 
     const candidates = [...this.providers.values()].filter((p) => meets(p.capabilities, requireV, requireS, requireSt));
 
@@ -70,7 +70,7 @@ export class ProviderRouter {
   }
 
   selectFor(req: GenerationRequest): IProvider {
-    return this.select([], req.patternId !== undefined, false, false);
+    return this.select([], false, false, false);
   }
 }
 

@@ -105,6 +105,7 @@ export function applyReasoningAdjustment(
   cap: number,
   evidenceIds: string[],
   note: string,
+  dimensionWeights: Record<QualityDimension, number>,
 ): ScoringOutput {
   const capped = Math.max(-cap, Math.min(cap, delta));
   if (capped === 0) return base;
@@ -117,13 +118,12 @@ export function applyReasoningAdjustment(
     evidence: evidenceIds,
     note: `LLM reasoning (capped ±${cap}): ${note}`,
   };
-  // recompute aggregate
-  const weightSum = QUALITY_DIMENSIONS.reduce((_, d) => _ + 1, 0); // not used; recompute below
-  void weightSum;
+  const weightSum = QUALITY_DIMENSIONS.reduce((s, d) => s + (dimensionWeights[d] ?? 0), 0) || 1;
   let aggregate = 0;
-  // use equal weights fallback if not provided; aggregate recomputed externally by caller normally
-  for (const d of QUALITY_DIMENSIONS) aggregate += newDimScores[d];
-  const aggregateScore = Math.round((aggregate / QUALITY_DIMENSIONS.length) * 100) / 100;
+  for (const d of QUALITY_DIMENSIONS) {
+    aggregate += (dimensionWeights[d] ?? 0) * newDimScores[d];
+  }
+  const aggregateScore = Math.round((aggregate / weightSum) * 100) / 100;
   return {
     ...base,
     dimensionScores: newDimScores,

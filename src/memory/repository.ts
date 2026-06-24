@@ -57,8 +57,13 @@ export class FileHistoryRepository implements IHistoryRepository {
   }
 
   async save(session: Session): Promise<void> {
-    await fs.mkdir(this.dir, { recursive: true });
-    await fs.writeFile(this.file(session.id), JSON.stringify(session, null, 2), "utf8");
+    const file = this.file(session.id);
+    try {
+      await fs.writeFile(file, JSON.stringify(session, null, 2), "utf8");
+    } catch {
+      await fs.mkdir(this.dir, { recursive: true });
+      await fs.writeFile(file, JSON.stringify(session, null, 2), "utf8");
+    }
   }
 
   async get(id: Id): Promise<Session | undefined> {
@@ -179,8 +184,14 @@ export class FileMemoryRepository implements IMemoryRepository {
   }
 
   private async persist(rec: MemoryRecord): Promise<void> {
-    await fs.mkdir(this.dir, { recursive: true });
-    await fs.writeFile(path.join(this.dir, `${rec.id}.memory.json`), JSON.stringify(rec, null, 2), "utf8");
+    const dir = this.dir;
+    const file = path.join(dir, `${rec.id}.memory.json`);
+    try {
+      await fs.writeFile(file, JSON.stringify(rec, null, 2), "utf8");
+    } catch {
+      await fs.mkdir(dir, { recursive: true });
+      await fs.writeFile(file, JSON.stringify(rec, null, 2), "utf8");
+    }
   }
 }
 
@@ -200,7 +211,7 @@ export class AnalyticsService implements IAnalyticsRepository {
   async qualityTrends(since: Date, domain?: Domain): Promise<QualityTrendReport> {
     const sessions = await this.history.recent(1000);
     const filtered = sessions.filter(
-      (s) => s.startedAt >= since.toISOString() && (domain === undefined || true) && s.finalScore !== undefined,
+      (s) => s.startedAt >= since.toISOString() && (domain === undefined || s.domain === domain) && s.finalScore !== undefined,
     );
     const byBucket = new Map<string, Session[]>();
     for (const s of filtered) {

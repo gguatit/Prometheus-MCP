@@ -3,7 +3,7 @@ import {
   DirectCreativeWorkShape, CritiqueArtifactShape, ImproveArtifactShape, ListPatternsShape, GetPatternShape, RecallSessionsShape, GetQualityTrendsShape,
 } from "./schemas.js";
 import type { RuntimeConfig } from "../infrastructure/config.js";
-import { makeBrief, detectDomain } from "../pipeline/planner.js";
+import { makeBrief } from "../pipeline/planner.js";
 import type { Orchestrator } from "../pipeline/orchestrator.js";
 import { CriticEngine } from "../critic/engine.js";
 import { ImprovementEngine } from "../improver/engine.js";
@@ -79,8 +79,6 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
     "Evaluate an existing artifact with the expert Critic engine (evidence + rules + optional LLM reasoning). Returns dimension scores, findings, and prioritized suggestions. Does not generate.",
     CritiqueArtifactShape,
     async (input) => {
-      const domain = input.domain ?? detectDomain("");
-      void domain;
       const pattern = input.patternId ? await deps.patterns.get(input.patternId) : undefined;
       const artifact: Artifact = {
         id: newId("art"),
@@ -118,7 +116,16 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
       const reasoningProvider = firstNonStubProvider(deps.router);
       let critique: Critique;
       if (input.critique) {
-        critique = JSON.parse(input.critique) as Critique;
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(input.critique);
+        } catch {
+          return { content: [{ type: "text", text: "Error: critique input is not valid JSON." }] };
+        }
+        if (!parsed || typeof parsed !== "object" || !("aggregateScore" in parsed) || !("findings" in parsed)) {
+          return { content: [{ type: "text", text: "Error: critique input missing required fields (aggregateScore, findings)." }] };
+        }
+        critique = parsed as Critique;
       } else {
         critique = await deps.critic.critique(artifact, { pattern, sessionId: "ad-hoc", reasoningProvider });
       }

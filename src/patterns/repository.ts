@@ -59,10 +59,15 @@ export class FilePatternRepository implements IPatternRepository {
       // no patterns dir -> empty library (not a crash)
       return;
     }
-    const files = entries.filter((f) => f.endsWith(".pattern.json"));
+    const files = entries.filter((f) => f.endsWith(".pattern.json") && !f.includes("..") && !f.includes(path.sep));
     for (const f of files) {
       try {
-        const raw = await fs.readFile(path.join(this.dir, f), "utf8");
+        const full = path.resolve(this.dir, f);
+        if (!full.startsWith(path.resolve(this.dir))) {
+          this.loadErrors.push(`${f}: path traversal rejected`);
+          continue;
+        }
+        const raw = await fs.readFile(full, "utf8");
         const p = JSON.parse(raw) as Pattern;
         const report = validatePattern(p);
         if (!report.valid) {
@@ -81,6 +86,8 @@ export class FilePatternRepository implements IPatternRepository {
     return [...this.loadErrors];
   }
 
+  /** Browsing methods (list/search/byDomain) return ALL trust levels for discovery.
+   * Use all() for internal pipeline use where trust filtering is enforced. */
   list(category?: string): PatternSummary[] {
     const all = [...this.summaries.values()];
     return category ? all.filter((s) => s.category === category) : all;

@@ -94,9 +94,9 @@ export class ImprovementEngine {
 }
 
 function decideSurgical(critique: Critique, findings: Finding[]): boolean {
-  // systemic signals -> full regen
-  if (!critique.reasoningUsed) {
-    // if no reasoning and validity failed -> full
+  // if validity failed and no reasoning was used -> full regen
+  if (!critique.reasoningUsed && !findings.some((f) => f.kind === "tech-issue")) {
+    // no reasoning + no tech issues means systemic design issues -> full
   }
   const systemicDims: QualityDimension[] = ["visual-impact", "design-consistency", "creative-originality"];
   const systemicHits = findings.filter((f) => systemicDims.includes(f.dimension) && f.kind !== "strength").length;
@@ -106,6 +106,7 @@ function decideSurgical(critique: Critique, findings: Finding[]): boolean {
 }
 
 function buildChanges(findings: Finding[], pattern?: Pattern): PlannedChange[] {
+  void pattern;
   const changes: PlannedChange[] = [];
   let i = 0;
   for (const f of findings) {
@@ -120,10 +121,7 @@ function buildChanges(findings: Finding[], pattern?: Pattern): PlannedChange[] {
       description: f.suggestedFix,
     });
   }
-  // ensure required missing elements are explicitly added
-  if (pattern) {
-    // pattern-driven adds are already in findings via pat-required rule
-  }
+  // pattern-driven adds are already in findings via pat-required rule
   return changes;
 }
 

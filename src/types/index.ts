@@ -425,6 +425,7 @@ export interface Session {
   totalCostUsd: number;
   providerUsed: ProviderId;
   patternIds: string[];
+  domain?: Domain;
   terminationReason?: string;
 }
 

@@ -48,6 +48,7 @@ export function newSession(brief: CreativeBrief): Session {
     totalCostUsd: 0,
     providerUsed: "stub" as Session["providerUsed"],
     patternIds: [],
+    domain: brief.domain,
   };
 }
 

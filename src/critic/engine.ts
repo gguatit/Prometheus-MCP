@@ -52,7 +52,7 @@ export class CriticEngine {
       if (adjustments.length > 0) {
         reasoningUsed = true;
         for (const adj of adjustments) {
-          final = applyReasoningAdjustment(final, adj.dimension, adj.delta, this.config.llmReasoningCap, adj.evidenceIds, adj.note);
+          final = applyReasoningAdjustment(final, adj.dimension, adj.delta, this.config.llmReasoningCap, adj.evidenceIds, adj.note, this.config.dimensionWeights);
         }
       }
     }
