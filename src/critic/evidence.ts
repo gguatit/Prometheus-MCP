@@ -274,6 +274,12 @@ function checkMarkupBalance(content: string, errors: string[], isJsx: boolean): 
   const tagRe = /<\/?([a-zA-Z][a-zA-Z0-9]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g;
   let m: RegExpExecArray | null;
   while ((m = tagRe.exec(content)) !== null) {
+    // Skip TypeScript generics in JSX/TSX: <Foo> immediately preceded by identifier char or ')' (e.g. useRef<T>, Array<T>, fn()<T>)
+    // Generics never have whitespace before '<'; JSX tags always do (return <mesh>, => <div>).
+    if (isJsx && m.index > 0) {
+      const prev = content[m.index - 1];
+      if (prev && (/[a-zA-Z0-9_$]/.test(prev) || prev === ")")) continue;
+    }
     const closing = m[0]!.startsWith("</");
     const name = m[1]!.toLowerCase();
     if (voidTags.has(name)) continue;
@@ -368,7 +374,10 @@ function patternConformance(content: string, pattern: Pattern | undefined): Patt
   const present: string[] = [];
   const missing: string[] = [];
   for (const e of pattern.requiredElements) {
-    if (lower.includes(e.name.toLowerCase()) || lower.includes(e.name.replace(/-/g, " ").toLowerCase())) {
+    const nameLower = e.name.toLowerCase();
+    const nameNoDash = e.name.replace(/-/g, " ").toLowerCase();
+    const nameNoSep = e.name.replace(/-/g, "").toLowerCase();
+    if (lower.includes(nameLower) || lower.includes(nameNoDash) || lower.includes(nameNoSep)) {
       present.push(e.name);
     } else {
       missing.push(e.name);
@@ -376,7 +385,10 @@ function patternConformance(content: string, pattern: Pattern | undefined): Patt
   }
   const apFound: string[] = [];
   for (const ap of pattern.antiPatterns) {
-    if (lower.includes(ap.id.toLowerCase()) || lower.includes(ap.description.toLowerCase().slice(0, 20))) {
+    const apIdLower = ap.id.toLowerCase();
+    const apIdNoSep = ap.id.replace(/-/g, "").toLowerCase();
+    const apDesc = ap.description.toLowerCase().slice(0, 20);
+    if (lower.includes(apIdLower) || lower.includes(apIdNoSep) || lower.includes(apDesc)) {
       apFound.push(ap.id);
     }
   }

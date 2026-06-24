@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "prometheus": {
+      "type": "local",
+      "command": ["node", "E:/Downloads/Prometheus-MCP/dist/index.js"],
+      "enabled": true
+    }
+  }
+}
