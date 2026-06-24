@@ -107,7 +107,11 @@ export function measure(content: string, kind: Artifact["kind"]): ArtifactMetric
     (content.match(/getContext\s*\(\s*['"]webgpu['"]/g) ?? []).length;
   // `new THREE.*` or `new Vector3` etc. inside useFrame/RAF callback — GC pressure
   const newInLoopCount = countNewInLoop(content);
-  const deltaUsageCount = (content.match(/useFrame\s*\(\s*\([^)]*\bdelta\b[^)]*\)/g) ?? []).length;
+  // delta-based motion: R3F useFrame((state, delta) => ...) OR vanilla Three.js clock.getDelta() + * delta
+  const deltaUsageCount =
+    (content.match(/useFrame\s*\(\s*\([^)]*\bdelta\b[^)]*\)/g) ?? []).length +
+    (content.match(/\bgetDelta\s*\(/g) ?? []).length +
+    (content.match(/\*\s*delta\b/g) ?? []).length;
   const inputHandlerCount =
     (content.match(/\bon(KeyDown|KeyUp|MouseDown|MouseUp|MouseMove|Click|PointerDown|PointerUp|PointerMove)\b/g) ?? []).length +
     (content.match(/addEventListener\s*\(\s*['"](keydown|keyup|mousedown|mouseup|mousemove|click|pointerdown|pointerup|pointermove)['"]/g) ?? []).length;
@@ -270,6 +274,9 @@ function checkBraceBalance(content: string, errors: string[]): boolean {
 function checkMarkupBalance(content: string, errors: string[], isJsx: boolean): boolean {
   // Tag balance for non-void elements. JSX self-closing allowed.
   const voidTags = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+  // CDATA-style raw-text elements: their content is NOT parsed as HTML.
+  // <script> and <style> bodies contain JS/CSS where `<` is comparison, not a tag.
+  const rawTextTags = new Set(["script", "style", "textarea", "title"]);
   const stack: string[] = [];
   const tagRe = /<\/?([a-zA-Z][a-zA-Z0-9]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/g;
   let m: RegExpExecArray | null;
@@ -292,6 +299,20 @@ function checkMarkupBalance(content: string, errors: string[], isJsx: boolean): 
       }
     } else if (!m[2]!.endsWith("/")) {
       stack.push(name);
+      // For raw-text elements (script/style/textarea/title), skip the body entirely.
+      // Find the matching closing tag and jump past it — content between is NOT HTML.
+      if (rawTextTags.has(name)) {
+        const closeRe = new RegExp(`</${name}\\s*>`, "gi");
+        closeRe.lastIndex = tagRe.lastIndex;
+        const closeM = closeRe.exec(content);
+        if (closeM) {
+          // Pop the element we just pushed — its closing tag will be skipped, not re-parsed.
+          stack.pop();
+          tagRe.lastIndex = closeRe.lastIndex;
+          continue;
+        }
+        // No closing tag found — let the normal flow report it as unclosed.
+      }
     }
   }
   if (stack.length > 0) {
@@ -414,8 +435,17 @@ function clamp01(n: number): number {
 // Graphics / 3D signals (Three.js / R3F / WebGL / WebGPU / shaders)
 // ---------------------------------------------------------------------------
 
+/** Detect whether content (e.g. HTML) contains 3D/graphics code worth evaluating. */
+function hasGraphicsMarkers(content: string): boolean {
+  return /\b(THREE\.|WebGLRenderer|WebGL2|EffectComposer|UnrealBloomPass|RenderPass|BufferGeometry|ShaderMaterial|createShaderModule|navigator\.gpu|requestAdapter|getContext\s*\(\s*['"]webgpu|gl\.createShader|AdditiveBlending|useFrame|useThree|InstancedMesh|postprocessing|FogExp2|ACESFilmicToneMapping|OrbitControls|GLCube|attribute\s+vec3|uniform\s+mat4|void\s+main\s*\()\b/i.test(content);
+}
+
 function graphicsSignals(content: string, kind: Artifact["kind"], metrics: ArtifactMetrics): EvidenceSignal[] {
-  if (kind !== "js" && kind !== "ts" && kind !== "jsx" && kind !== "tsx") return [];
+  // Fire for JS/TS/JSX/TSX unconditionally; fire for HTML/CSS only when 3D markers are present
+  // (a Three.js demo wrapped in HTML has all the 3D code inside <script> tags).
+  if (kind !== "js" && kind !== "ts" && kind !== "jsx" && kind !== "tsx") {
+    if (!hasGraphicsMarkers(content)) return [];
+  }
   const out: EvidenceSignal[] = [];
   const lower = content.toLowerCase();
 
@@ -497,7 +527,10 @@ function checkShaderBalance(content: string): { value: number; detail: string } 
 // ---------------------------------------------------------------------------
 
 function gameFeelSignals(content: string, kind: Artifact["kind"], metrics: ArtifactMetrics): EvidenceSignal[] {
-  if (kind !== "js" && kind !== "ts" && kind !== "jsx" && kind !== "tsx") return [];
+  // Fire for JS/TS/JSX/TSX unconditionally; fire for HTML only when game/3D markers are present.
+  if (kind !== "js" && kind !== "ts" && kind !== "jsx" && kind !== "tsx") {
+    if (!hasGraphicsMarkers(content)) return [];
+  }
   const out: EvidenceSignal[] = [];
 
   // input handling — keyboard/mouse/pointer/touch
