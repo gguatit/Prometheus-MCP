@@ -27,7 +27,7 @@ describe("MCP server surface (in-memory transport)", () => {
     await server.close();
   });
 
-  it("list_patterns returns the 12 loaded patterns", async () => {
+  it("list_patterns returns the 22 loaded patterns", async () => {
     const server = await buildServer();
     const [clientT, serverT] = InMemoryTransport.createLinkedPair();
     await server.connect(serverT);
@@ -36,7 +36,7 @@ describe("MCP server surface (in-memory transport)", () => {
 
     const res = await client.callTool({ name: "list_patterns", arguments: {} });
     const sc = res.structuredContent as { patterns: { id: string }[] } | undefined;
-    expect(sc?.patterns.length).toBe(12);
+    expect(sc?.patterns.length).toBe(22);
     await client.close();
     await server.close();
   });

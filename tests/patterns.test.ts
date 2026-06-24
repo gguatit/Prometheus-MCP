@@ -8,13 +8,13 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const patternsDir = path.resolve(here, "..", "patterns");
 
 describe("pattern library", () => {
-  it("loads all 12 patterns from disk with zero load errors", async () => {
+  it("loads all 22 patterns from disk with zero load errors", async () => {
     const repo = new FilePatternRepository(patternsDir, true);
     await repo.load();
     const errors = repo.loadErrorsList();
     expect(errors).toEqual([]);
     const all = repo.list();
-    expect(all.length).toBe(12);
+    expect(all.length).toBe(22);
   });
 
   it("every pattern passes structural + semantic validation", async () => {
@@ -49,6 +49,7 @@ describe("pattern library", () => {
     await repo.load();
     expect(repo.list("fantasy_fireball").length).toBe(1);
     expect(repo.byDomain("vfx").length).toBe(3); // fireball, lightning, magic-circle
+    expect(repo.byDomain("game-development").length).toBe(8); // platformer, action, shooter, puzzle, racing, state-manager, ecs, skill-effect
     expect(repo.search("fireball").length).toBe(1);
     expect(repo.search("NONEXISTENT_TERM_ZZZ").length).toBe(0);
   });

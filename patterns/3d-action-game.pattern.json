@@ -1,0 +1,192 @@
+{
+  "id": "3d-action-game",
+  "name": "3D Action Game",
+  "description": "A 3D action game with player character controller, third-person camera, enemy AI, combat system, health/damage, and particle effects on hits. Targets Three.js/R3F with Rapier physics.",
+  "category": "action_3d",
+  "domain": "game-development",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "character-controller",
+      "description": "Third-person character controller with WASD movement, jump, and camera-relative direction.",
+      "required": true
+    },
+    {
+      "name": "third-person-camera",
+      "description": "Camera that follows the player with orbit, collision avoidance, and smooth lerp.",
+      "required": true
+    },
+    {
+      "name": "combat-system",
+      "description": "Attack input, hitbox detection, damage calculation, and hit feedback.",
+      "required": true
+    },
+    {
+      "name": "enemy-ai",
+      "description": "Enemies with state machine (idle/chase/attack/die) and pathfinding toward player.",
+      "required": true
+    },
+    {
+      "name": "health-system",
+      "description": "Player and enemy health with damage events, death, and respawn.",
+      "required": true
+    },
+    {
+      "name": "particle-effects",
+      "description": "Hit sparks, blood, or magic particles on combat impact with fading.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "physics-ragdoll",
+      "description": "Ragdoll physics on enemy death via Rapier.",
+      "required": false
+    },
+    {
+      "name": "post-processing",
+      "description": "Bloom on magic effects, vignette on low health.",
+      "required": false
+    },
+    {
+      "name": "audio-feedback",
+      "description": "3D positional audio for sword swings, hits, and footsteps.",
+      "required": false
+    },
+    {
+      "name": "lock-on-targeting",
+      "description": "Z-targeting style lock-on for focused combat.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "action-camera-smooth",
+      "dimension": "game-feel",
+      "description": "Camera follows with lerp damping, no snap or jitter.",
+      "weight": 0.3
+    },
+    {
+      "id": "action-combat-juice",
+      "dimension": "game-feel",
+      "description": "Hit stop, screen shake, and particle burst on every hit.",
+      "weight": 0.4
+    },
+    {
+      "id": "action-input-buffer",
+      "dimension": "game-feel",
+      "description": "Attack inputs are buffered 200ms to chain combos smoothly.",
+      "weight": 0.3
+    },
+    {
+      "id": "action-ai-state",
+      "dimension": "technical-quality",
+      "description": "Enemy AI uses a clear state machine, not nested ifs.",
+      "weight": 1
+    },
+    {
+      "id": "action-dispose",
+      "dimension": "graphics-quality",
+      "description": "Dead enemies dispose geometry/material and remove from scene.",
+      "weight": 0.56
+    },
+    {
+      "id": "action-perf",
+      "dimension": "performance",
+      "description": "No new Vector3 in useFrame; enemy pooling for instanced rendering.",
+      "weight": 1
+    },
+    {
+      "id": "action-postprocess",
+      "dimension": "graphics-quality",
+      "description": "Bloom pass for magic effects, vignette for low health feedback.",
+      "weight": 0.44
+    },
+    {
+      "id": "action-delta",
+      "dimension": "animation-quality",
+      "description": "All animation and movement uses delta time.",
+      "weight": 1
+    },
+    {
+      "id": "action-visual",
+      "dimension": "visual-impact",
+      "description": "Character and environment have clear silhouettes and color contrast.",
+      "weight": 1
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "snap-camera",
+      "description": "Camera instantly snaps to position — nauseating and unpolished.",
+      "dimension": "game-feel"
+    },
+    {
+      "id": "no-hit-feedback",
+      "description": "Hits have no visual/audio response — combat feels like hitting air.",
+      "dimension": "game-feel"
+    },
+    {
+      "id": "ai-stuck",
+      "description": "Enemies get stuck on walls or each other with no pathfinding recovery.",
+      "dimension": "technical-quality"
+    },
+    {
+      "id": "gpu-leak-dead",
+      "description": "Dead enemies remain in scene graph, accumulating GPU memory.",
+      "dimension": "graphics-quality"
+    },
+    {
+      "id": "frame-motion",
+      "description": "Movement per-frame not per-delta — game speed varies with framerate.",
+      "dimension": "performance"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-hit-stop",
+      "dimension": "game-feel",
+      "description": "Freeze game for 60ms on hit for impact weight.",
+      "expectedUplift": 10
+    },
+    {
+      "id": "add-bloom",
+      "dimension": "graphics-quality",
+      "description": "Add UnrealBloomPass for magic/weapon glow effects.",
+      "expectedUplift": 8
+    },
+    {
+      "id": "add-ragdoll",
+      "dimension": "game-feel",
+      "description": "Add Rapier ragdoll on enemy death for satisfying kills.",
+      "expectedUplift": 7
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "R3F character controller with delta",
+      "kind": "jsx",
+      "snippet": "useFrame((state, delta) => {\n  const dir = new THREE.Vector3(); // hoisted outside in real code\n  state.camera.getWorldDirection(dir);\n  dir.y = 0; dir.normalize();\n  ref.current.position.addScaledVector(dir, speed * delta);\n});"
+    }
+  ],
+  "references": [
+    {
+      "title": "React Three Rapier — Character Controller",
+      "url": "https://github.com/pmndrs/react-three-rapier"
+    },
+    {
+      "title": "GDC — Juice in Action Games",
+      "author": "Various"
+    },
+    {
+      "title": "Three.js — Third Person Camera Example",
+      "url": "https://threejs.org/examples/"
+    }
+  ]
+}

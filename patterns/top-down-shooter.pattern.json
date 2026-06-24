@@ -1,0 +1,172 @@
+{
+  "id": "top-down-shooter",
+  "name": "Top-Down Shooter",
+  "description": "A top-down twin-stick shooter with player movement, aiming, projectile spawning, enemy waves, and collision-based damage. Targets canvas 2D or Three.js orthographic.",
+  "category": "shooter_topdown",
+  "domain": "game-development",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "player-movement",
+      "description": "WASD movement with mouse aim; player rotates toward cursor.",
+      "required": true
+    },
+    {
+      "name": "projectile-system",
+      "description": "Bullet spawning on click, pooled projectile array, lifetime/fade.",
+      "required": true
+    },
+    {
+      "name": "enemy-waves",
+      "description": "Spawning enemies in increasing waves from screen edges.",
+      "required": true
+    },
+    {
+      "name": "collision-damage",
+      "description": "Circle-circle collision between bullets/enemies/player with damage events.",
+      "required": true
+    },
+    {
+      "name": "score-hud",
+      "description": "Score, wave number, and health displayed in HUD overlay.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "screen-shake",
+      "description": "Camera shake on player damage and explosions.",
+      "required": false
+    },
+    {
+      "name": "particle-explosions",
+      "description": "Explosion particles on enemy death with additive blending.",
+      "required": false
+    },
+    {
+      "name": "power-ups",
+      "description": "Dropped power-ups: rapid fire, spread shot, shield.",
+      "required": false
+    },
+    {
+      "name": "boss-fight",
+      "description": "Wave 10 boss with multiple attack patterns.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "shooter-aim-feel",
+      "dimension": "game-feel",
+      "description": "Aiming is precise, crosshair visible, no input lag.",
+      "weight": 0.3
+    },
+    {
+      "id": "shooter-juice",
+      "dimension": "game-feel",
+      "description": "Screen shake on hit, muzzle flash, enemy flash on damage, explosion particles.",
+      "weight": 0.4
+    },
+    {
+      "id": "shooter-difficulty",
+      "dimension": "game-feel",
+      "description": "Wave difficulty scales smoothly; no sudden impossible spikes.",
+      "weight": 0.3
+    },
+    {
+      "id": "shooter-pooling",
+      "dimension": "performance",
+      "description": "Bullets and enemies are object-pooled — no per-frame allocation.",
+      "weight": 1
+    },
+    {
+      "id": "shooter-collision",
+      "dimension": "technical-quality",
+      "description": "Collision detection is O(n*m) or better with spatial hashing for 100+ entities.",
+      "weight": 1
+    },
+    {
+      "id": "shooter-hud",
+      "dimension": "user-experience",
+      "description": "HUD is readable, not obstructing gameplay, updates in real-time.",
+      "weight": 1
+    },
+    {
+      "id": "shooter-visual",
+      "dimension": "visual-impact",
+      "description": "Neon/glow aesthetic with additive particles and clear entity silhouettes.",
+      "weight": 1
+    },
+    {
+      "id": "shooter-delta",
+      "dimension": "animation-quality",
+      "description": "Bullet speed and enemy movement use delta time.",
+      "weight": 1
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "no-pooling",
+      "description": "Creating new bullet objects every shot causes GC stutter under rapid fire.",
+      "dimension": "performance"
+    },
+    {
+      "id": "no-muzzle-flash",
+      "description": "Shooting has no visual feedback — feels like the gun does nothing.",
+      "dimension": "game-feel"
+    },
+    {
+      "id": "o-n-collision",
+      "description": "O(n^2) collision check for 200+ entities — drops framerate.",
+      "dimension": "performance"
+    },
+    {
+      "id": "flat-enemies",
+      "description": "Enemies are single-color squares with no death animation.",
+      "dimension": "visual-impact"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-object-pool",
+      "dimension": "performance",
+      "description": "Pool bullets and enemies in pre-allocated arrays with active flags.",
+      "expectedUplift": 12
+    },
+    {
+      "id": "add-muzzle-flash",
+      "dimension": "game-feel",
+      "description": "Add a 50ms muzzle flash sprite at the gun tip on every shot.",
+      "expectedUplift": 6
+    },
+    {
+      "id": "add-glow",
+      "dimension": "visual-impact",
+      "description": "Add additive glow to bullets and enemies for neon aesthetic.",
+      "expectedUplift": 7
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Object pool pattern",
+      "kind": "js",
+      "snippet": "const bullets = Array.from({ length: 200 }, () => ({ active: false, x: 0, y: 0, vx: 0, vy: 0 }));\nfunction spawnBullet(x, y, vx, vy) {\n  const b = bullets.find(b => !b.active);\n  if (!b) return;\n  b.active = true; b.x = x; b.y = y; b.vx = vx; b.vy = vy;\n}"
+    }
+  ],
+  "references": [
+    {
+      "title": "Game Programming Patterns — Object Pool",
+      "author": "Robert Nystrom"
+    },
+    {
+      "title": "Vlambeer — The Art of Screenshake",
+      "url": "https://www.youtube.com/watch?v=AJdE6pJAyKg"
+    }
+  ]
+}

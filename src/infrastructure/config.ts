@@ -38,20 +38,22 @@ export interface RuntimeConfig {
 }
 
 const DEFAULT_WEIGHTS: Record<QualityDimension, number> = {
-  "visual-impact": 0.1,
-  "design-consistency": 0.08,
-  readability: 0.07,
-  "animation-quality": 0.07,
-  "technical-quality": 0.09,
-  accessibility: 0.09,
+  "visual-impact": 0.08,
+  "design-consistency": 0.07,
+  readability: 0.06,
+  "animation-quality": 0.06,
+  "technical-quality": 0.08,
+  accessibility: 0.08,
   responsiveness: 0.07,
-  performance: 0.08,
+  performance: 0.07,
   "code-maintainability": 0.06,
-  "code-quality": 0.07,
-  "user-experience": 0.08,
+  "code-quality": 0.06,
+  "user-experience": 0.07,
   "creative-originality": 0.06,
   "modern-design-practices": 0.05,
   "industry-best-practices": 0.03,
+  "graphics-quality": 0.06,
+  "game-feel": 0.04,
 };
 
 export function defaultConfig(rootDir: string): RuntimeConfig {

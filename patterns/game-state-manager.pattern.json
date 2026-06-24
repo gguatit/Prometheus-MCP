@@ -1,0 +1,150 @@
+{
+  "id": "game-state-manager",
+  "name": "Game State Manager",
+  "description": "A finite state machine for game states (menu, playing, paused, game-over) with transitions, scene loading, and persistent data. Framework-agnostic pattern for any web game.",
+  "category": "game_state_fsm",
+  "domain": "game-development",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "state-machine",
+      "description": "FSM with states (menu/playing/paused/gameover) and guarded transitions.",
+      "required": true
+    },
+    {
+      "name": "scene-loader",
+      "description": "Each state has enter/exit hooks for scene setup and teardown.",
+      "required": true
+    },
+    {
+      "name": "transition-guard",
+      "description": "Transitions are validated — can't go from gameover to playing without reset.",
+      "required": true
+    },
+    {
+      "name": "persistent-data",
+      "description": "High score, settings, progress persist via localStorage or IndexedDB.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "transition-anim",
+      "description": "Animated transitions between states (fade, slide).",
+      "required": false
+    },
+    {
+      "name": "save-load",
+      "description": "Save/load game state mid-session.",
+      "required": false
+    },
+    {
+      "name": "settings-menu",
+      "description": "Audio/graphics/control settings in menu state.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "fsm-transitions",
+      "dimension": "technical-quality",
+      "description": "State transitions are explicit and guarded — no implicit state drift.",
+      "weight": 1
+    },
+    {
+      "id": "fsm-cleanup",
+      "dimension": "graphics-quality",
+      "description": "Exit hooks dispose scene resources (geometry/material/textures).",
+      "weight": 1
+    },
+    {
+      "id": "fsm-persist",
+      "dimension": "user-experience",
+      "description": "High score and settings persist across sessions.",
+      "weight": 1
+    },
+    {
+      "id": "fsm-code",
+      "dimension": "code-quality",
+      "description": "FSM is a clean class/hook, not nested switch/if chains.",
+      "weight": 1
+    },
+    {
+      "id": "fsm-testable",
+      "dimension": "code-maintainability",
+      "description": "States and transitions are unit-testable in isolation.",
+      "weight": 1
+    },
+    {
+      "id": "fsm-no-leak",
+      "dimension": "performance",
+      "description": "State transitions don't accumulate event listeners or timers.",
+      "weight": 1
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "implicit-state",
+      "description": "Game state is tracked via scattered boolean flags — impossible to reason about.",
+      "dimension": "code-quality"
+    },
+    {
+      "id": "no-transition-guard",
+      "description": "Any state can transition to any other — game-over can jump back to playing without reset.",
+      "dimension": "technical-quality"
+    },
+    {
+      "id": "resource-leak-exit",
+      "description": "State exit doesn't dispose 3D resources — GPU memory grows each transition.",
+      "dimension": "graphics-quality"
+    },
+    {
+      "id": "listener-leak",
+      "description": "Event listeners added in enter() but not removed in exit() — duplicate handlers accumulate.",
+      "dimension": "performance"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-transition-anim",
+      "dimension": "user-experience",
+      "description": "Add fade transitions between states for polish.",
+      "expectedUplift": 5
+    },
+    {
+      "id": "add-save",
+      "dimension": "user-experience",
+      "description": "Add mid-session save/load for longer games.",
+      "expectedUplift": 6
+    },
+    {
+      "id": "refactor-fsm",
+      "dimension": "code-quality",
+      "description": "Extract FSM into dedicated class with transition table.",
+      "expectedUplift": 8
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "FSM transition table",
+      "kind": "ts",
+      "snippet": "const transitions: Record<State, State[]> = {\n  menu: ['playing'],\n  playing: ['paused', 'gameover'],\n  paused: ['playing', 'menu'],\n  gameover: ['menu'],\n};\nfunction canTransition(from: State, to: State) { return transitions[from]?.includes(to) ?? false; }"
+    }
+  ],
+  "references": [
+    {
+      "title": "Game Programming Patterns — State",
+      "author": "Robert Nystrom"
+    },
+    {
+      "title": "Finite State Machines in Games",
+      "url": "https://gameprogrammingpatterns.com/state.html"
+    }
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "id": "physics-puzzle",
+  "name": "Physics Puzzle Game",
+  "description": "A physics-based puzzle game (like Angry Birds style) with projectile launching, destructible structures, rigid body physics, and scoring based on destruction. Targets Rapier or Matter.js.",
+  "category": "puzzle_physics",
+  "domain": "game-development",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "physics-world",
+      "description": "Rigid body physics world with gravity, collision, and restitution.",
+      "required": true
+    },
+    {
+      "name": "projectile-launcher",
+      "description": "Drag-to-aim launcher with trajectory preview and release-to-fire.",
+      "required": true
+    },
+    {
+      "name": "destructible-blocks",
+      "description": "Stacked blocks that topple, collide, and break under impact.",
+      "required": true
+    },
+    {
+      "name": "target-objectives",
+      "description": "Targets/enemies to hit with the projectile for scoring.",
+      "required": true
+    },
+    {
+      "name": "score-system",
+      "description": "Score based on targets hit, blocks destroyed, and projectiles remaining.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "trajectory-preview",
+      "description": "Dotted line showing predicted projectile path before launch.",
+      "required": false
+    },
+    {
+      "name": "block-types",
+      "description": "Different block materials (wood/stone/glass) with varying durability.",
+      "required": false
+    },
+    {
+      "name": "star-rating",
+      "description": "1-3 star rating based on score thresholds per level.",
+      "required": false
+    },
+    {
+      "name": "particle-debris",
+      "description": "Debris particles when blocks break.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "puzzle-launch-feel",
+      "dimension": "game-feel",
+      "description": "Drag has elastic resistance feel; release has satisfying launch snap.",
+      "weight": 0.4
+    },
+    {
+      "id": "puzzle-physics-juice",
+      "dimension": "game-feel",
+      "description": "Screen shake on impact, slow-mo on near-miss, particle debris on break.",
+      "weight": 0.3
+    },
+    {
+      "id": "puzzle-feedback",
+      "dimension": "game-feel",
+      "description": "Clear visual feedback on target hit (flash, score popup, sound).",
+      "weight": 0.3
+    },
+    {
+      "id": "puzzle-physics-stable",
+      "dimension": "technical-quality",
+      "description": "Physics simulation is stable — no jittering, tunneling, or explosion.",
+      "weight": 1
+    },
+    {
+      "id": "puzzle-level-design",
+      "dimension": "user-experience",
+      "description": "Levels are solvable with multiple approaches; difficulty curves up.",
+      "weight": 1
+    },
+    {
+      "id": "puzzle-perf",
+      "dimension": "performance",
+      "description": "Physics steps at fixed timestep; rendering interpolates.",
+      "weight": 1
+    },
+    {
+      "id": "puzzle-visual",
+      "dimension": "visual-impact",
+      "description": "Blocks have distinct textures/materials; clear visual hierarchy.",
+      "weight": 1
+    },
+    {
+      "id": "puzzle-dispose",
+      "dimension": "graphics-quality",
+      "description": "Broken block meshes are disposed and removed from scene.",
+      "weight": 1
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "physics-jitter",
+      "description": "Stacked blocks jitter or slide slowly — breaks immersion.",
+      "dimension": "technical-quality"
+    },
+    {
+      "id": "no-launch-feedback",
+      "description": "Launching feels limp — no snap, no sound, no trail.",
+      "dimension": "game-feel"
+    },
+    {
+      "id": "unsolvable-level",
+      "description": "Level is impossible to 3-star due to poor block placement.",
+      "dimension": "user-experience"
+    },
+    {
+      "id": "block-leak",
+      "description": "Broken blocks remain in physics world and scene graph — memory leak.",
+      "dimension": "graphics-quality"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-trajectory",
+      "dimension": "game-feel",
+      "description": "Add dotted trajectory preview line that updates as player drags.",
+      "expectedUplift": 8
+    },
+    {
+      "id": "add-slow-mo",
+      "dimension": "game-feel",
+      "description": "Slow time to 0.3x for 500ms on near-miss for dramatic effect.",
+      "expectedUplift": 6
+    },
+    {
+      "id": "add-debris",
+      "dimension": "visual-impact",
+      "description": "Add particle debris when blocks shatter.",
+      "expectedUplift": 5
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Rapier physics world init",
+      "kind": "js",
+      "snippet": "import RAPIER from '@dimforge/rapier2d-compat';\nawait RAPIER.init();\nconst world = new RAPIER.World({ x: 0, y: -9.81 });\nconst body = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, 10, 0));\nworld.createCollider(RAPIER.ColliderDesc.ball(0.5), body);"
+    }
+  ],
+  "references": [
+    {
+      "title": "Rapier.js Documentation",
+      "url": "https://rapier.rs/docs/"
+    },
+    {
+      "title": "Angry Birds — Physics Game Design",
+      "author": "Rovio"
+    }
+  ]
+}

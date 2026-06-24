@@ -62,7 +62,9 @@ export type QualityDimension =
   | "user-experience"
   | "creative-originality"
   | "modern-design-practices"
-  | "industry-best-practices";
+  | "industry-best-practices"
+  | "graphics-quality"
+  | "game-feel";
 
 export const QUALITY_DIMENSIONS: readonly QualityDimension[] = [
   "visual-impact",
@@ -79,6 +81,8 @@ export const QUALITY_DIMENSIONS: readonly QualityDimension[] = [
   "creative-originality",
   "modern-design-practices",
   "industry-best-practices",
+  "graphics-quality",
+  "game-feel",
 ] as const;
 
 export type DimensionScores = Record<QualityDimension, number>;
@@ -205,7 +209,7 @@ export interface Evidence {
 
 export interface EvidenceSignal {
   id: string;
-  kind: "a11y" | "responsive" | "performance" | "structure" | "pattern" | "security";
+  kind: "a11y" | "responsive" | "performance" | "structure" | "pattern" | "security" | "graphics" | "game-feel";
   label: string;
   value: number; // normalized 0..1 where 1 is good
   detail: string;
@@ -230,6 +234,20 @@ export interface ArtifactMetrics {
   altTextCoverage: number; // 0..1
   semanticLandmarkCount: number;
   estimatedBundleKb: number;
+  // 3D / graphics metrics
+  useFrameCount: number;
+  useThreeCount: number;
+  shaderCount: number;
+  disposeCallCount: number;
+  bufferGeometryCount: number;
+  postProcessingCount: number;
+  instancedMeshCount: number;
+  additiveBlendingCount: number;
+  webgpuInitCount: number;
+  newInLoopCount: number; // `new THREE.*` inside useFrame/RAF — GC pressure
+  deltaUsageCount: number; // useFrame delta used for framerate-independent motion
+  inputHandlerCount: number;
+  screenShakeCount: number;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,160 @@
+{
+  "id": "ecs-architecture",
+  "name": "ECS Architecture",
+  "description": "Entity-Component-System architecture for games: entities are IDs, components are data bags, systems are pure functions that query and mutate components. Enables data-oriented design for performance and scalability.",
+  "category": "ecs_architecture",
+  "domain": "game-development",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "entity-manager",
+      "description": "Entity creation/destruction with unique IDs and component registration.",
+      "required": true
+    },
+    {
+      "name": "component-store",
+      "description": "Component storage as typed arrays or Maps for cache-friendly access.",
+      "required": true
+    },
+    {
+      "name": "system-runner",
+      "description": "Systems run in order, each querying entities with required components.",
+      "required": true
+    },
+    {
+      "name": "query-system",
+      "description": "Query API to find entities matching a component signature.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "event-bus",
+      "description": "Event system for cross-system communication (damage, death, spawn).",
+      "required": false
+    },
+    {
+      "name": "archetype-grouping",
+      "description": "Archetype-based grouping for batch system iteration.",
+      "required": false
+    },
+    {
+      "name": "resource-pool",
+      "description": "Entity/component pooling to avoid GC.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "ecs-separation",
+      "dimension": "code-quality",
+      "description": "Data (components) and logic (systems) are cleanly separated.",
+      "weight": 0.5
+    },
+    {
+      "id": "ecs-query",
+      "dimension": "code-quality",
+      "description": "Query API is typed and efficient — no O(n) filtering per system.",
+      "weight": 0.5
+    },
+    {
+      "id": "ecs-modular",
+      "dimension": "code-maintainability",
+      "description": "Systems are independent and composable — adding a feature = add a system.",
+      "weight": 0.36
+    },
+    {
+      "id": "ecs-perf",
+      "dimension": "performance",
+      "description": "Component storage is cache-friendly; no per-entity object allocation in loops.",
+      "weight": 1
+    },
+    {
+      "id": "ecs-dispose",
+      "dimension": "graphics-quality",
+      "description": "Entity destruction disposes 3D resources tied to components.",
+      "weight": 1
+    },
+    {
+      "id": "ecs-testable",
+      "dimension": "code-maintainability",
+      "description": "Systems are pure functions testable in isolation with mock data.",
+      "weight": 0.27
+    },
+    {
+      "id": "ecs-extensibility",
+      "dimension": "code-maintainability",
+      "description": "New components/systems added without modifying existing code.",
+      "weight": 0.37
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "god-component",
+      "description": "Single component with 20 fields mixing transform/health/render — defeats ECS purpose.",
+      "dimension": "code-quality"
+    },
+    {
+      "id": "system-coupling",
+      "description": "Systems directly reference each other — tight coupling, hard to test.",
+      "dimension": "code-maintainability"
+    },
+    {
+      "id": "per-entity-alloc",
+      "description": "Creating new objects per entity per frame in systems — GC pressure.",
+      "dimension": "performance"
+    },
+    {
+      "id": "no-dispose",
+      "description": "Destroyed entities leave GPU resources undisposed — leak.",
+      "dimension": "graphics-quality"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-archetype",
+      "dimension": "performance",
+      "description": "Group entities by component signature for O(1) system iteration.",
+      "expectedUplift": 10
+    },
+    {
+      "id": "add-pooling",
+      "dimension": "performance",
+      "description": "Pool entities to avoid GC on frequent create/destroy.",
+      "expectedUplift": 8
+    },
+    {
+      "id": "add-events",
+      "dimension": "code-maintainability",
+      "description": "Add event bus for decoupled cross-system communication.",
+      "expectedUplift": 6
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "ECS system query pattern",
+      "kind": "ts",
+      "snippet": "function movementSystem(ecs: ECS, dt: number) {\n  for (const e of ecs.query(['position', 'velocity'])) {\n    const pos = ecs.get(e, 'position');\n    const vel = ecs.get(e, 'velocity');\n    pos.x += vel.x * dt;\n    pos.y += vel.y * dt;\n  }\n}"
+    }
+  ],
+  "references": [
+    {
+      "title": "Entity Component System FAQ",
+      "url": "https://github.com/SanderMertens/ecs-faq"
+    },
+    {
+      "title": "Data-Oriented Design",
+      "author": "Richard Fabian"
+    },
+    {
+      "title": "miniplex — ECS for JavaScript",
+      "url": "https://github.com/hmans/miniplex"
+    }
+  ]
+}

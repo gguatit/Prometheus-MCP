@@ -1,0 +1,177 @@
+{
+  "id": "webgpu-render-pipeline",
+  "name": "WebGPU Render Pipeline",
+  "description": "A WebGPU render pipeline with adapter/device init, shader module (WGSL), vertex buffers, bind groups, render pass, and resize handling. Targets raw WebGPU API for maximum control.",
+  "category": "webgpu_render_pipeline",
+  "domain": "creative-coding",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "gpu-init",
+      "description": "navigator.gpu guard, requestAdapter, requestDevice, context.configure.",
+      "required": true
+    },
+    {
+      "name": "shader-module",
+      "description": "WGSL shader module with @vertex and @fragment entry points.",
+      "required": true
+    },
+    {
+      "name": "vertex-buffer",
+      "description": "Vertex buffer with createBuffer, writeBuffer, and attribute layout.",
+      "required": true
+    },
+    {
+      "name": "render-pipeline",
+      "description": "createRenderPipeline with vertex/fragment/primitive/depthStencil config.",
+      "required": true
+    },
+    {
+      "name": "render-pass",
+      "description": "Command encoder, beginRenderPass, setPipeline, setBindGroup, draw, submit.",
+      "required": true
+    },
+    {
+      "name": "resize-handler",
+      "description": "ResizeObserver clamps canvas to device.limits.maxTextureDimension2D.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "uniform-buffer",
+      "description": "Uniform buffer for MVP matrix with writeBuffer per frame.",
+      "required": false
+    },
+    {
+      "name": "bind-group",
+      "description": "Bind group layout + bind group for uniform binding.",
+      "required": false
+    },
+    {
+      "name": "depth-buffer",
+      "description": "Depth24plus texture for depth testing.",
+      "required": false
+    },
+    {
+      "name": "texture-sampling",
+      "description": "Texture and sampler for textured rendering.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "webgpu-init-guard",
+      "dimension": "graphics-quality",
+      "description": "navigator.gpu, adapter, device all null-guarded with fallback.",
+      "weight": 0.37
+    },
+    {
+      "id": "webgpu-shader-valid",
+      "dimension": "technical-quality",
+      "description": "WGSL compiles; braces balanced; entry points match pipeline.",
+      "weight": 0.6
+    },
+    {
+      "id": "webgpu-resize",
+      "dimension": "technical-quality",
+      "description": "ResizeObserver updates canvas + reconfigures context.",
+      "weight": 0.4
+    },
+    {
+      "id": "webgpu-dispose",
+      "dimension": "graphics-quality",
+      "description": "Buffers and textures destroyed when no longer needed.",
+      "weight": 0.25
+    },
+    {
+      "id": "webgpu-perf",
+      "dimension": "performance",
+      "description": "No buffer creation in render loop; reuse command encoder pattern.",
+      "weight": 1
+    },
+    {
+      "id": "webgpu-depth",
+      "dimension": "graphics-quality",
+      "description": "Depth buffer enabled for correct 3D occlusion.",
+      "weight": 0.38
+    },
+    {
+      "id": "webgpu-visual",
+      "dimension": "visual-impact",
+      "description": "Output is visually correct — no garbage pixels, correct aspect ratio.",
+      "weight": 1
+    },
+    {
+      "id": "webgpu-code",
+      "dimension": "code-quality",
+      "description": "Pipeline descriptor is typed and structured, not a giant inline object.",
+      "weight": 1
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "no-gpu-guard",
+      "description": "navigator.gpu used without null check — crashes on unsupported browsers.",
+      "dimension": "graphics-quality"
+    },
+    {
+      "id": "buffer-in-loop",
+      "description": "Creating buffers inside the render loop — GPU memory leak + stalls.",
+      "dimension": "performance"
+    },
+    {
+      "id": "no-resize",
+      "description": "Canvas doesn't resize — content stretches or clips on window resize.",
+      "dimension": "technical-quality"
+    },
+    {
+      "id": "no-depth",
+      "description": "No depth buffer — 3D objects render in submission order, not depth order.",
+      "dimension": "graphics-quality"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-uniform-buffer",
+      "dimension": "graphics-quality",
+      "description": "Add uniform buffer for camera matrix to enable 3D camera control.",
+      "expectedUplift": 8
+    },
+    {
+      "id": "add-depth",
+      "dimension": "graphics-quality",
+      "description": "Add depth24plus depth-stencil attachment for correct occlusion.",
+      "expectedUplift": 7
+    },
+    {
+      "id": "add-texture",
+      "dimension": "visual-impact",
+      "description": "Add texture sampling for textured surfaces.",
+      "expectedUplift": 6
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "WebGPU init with guards",
+      "kind": "js",
+      "snippet": "if (!navigator.gpu) return;\nconst adapter = await navigator.gpu.requestAdapter();\nif (!adapter) return;\nconst device = await adapter.requestDevice();\nconst context = canvas.getContext('webgpu');\ncontext.configure({ device, format: navigator.gpu.getPreferredCanvasFormat(), alphaMode: 'premultiplied' });"
+    }
+  ],
+  "references": [
+    {
+      "title": "WebGPU Fundamentals",
+      "url": "https://webgpufundamentals.org"
+    },
+    {
+      "title": "WebGPU Specification",
+      "url": "https://www.w3.org/TR/webgpu/"
+    }
+  ]
+}

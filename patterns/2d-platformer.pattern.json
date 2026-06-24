@@ -1,0 +1,181 @@
+{
+  "id": "2d-platformer",
+  "name": "2D Platformer Game",
+  "description": "A side-scrolling 2D platformer with player movement, jumping physics, collision detection, tilemap level, collectibles, and enemies. Targets Phaser or vanilla canvas with fixed-timestep game loop.",
+  "category": "platformer_2d",
+  "domain": "game-development",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "player-controller",
+      "description": "Player sprite with horizontal movement, jump mechanics, and gravity.",
+      "required": true
+    },
+    {
+      "name": "collision-detection",
+      "description": "AABB or tile-based collision between player and platforms/walls.",
+      "required": true
+    },
+    {
+      "name": "tilemap-level",
+      "description": "Tilemap-based level layout with solid tiles, hazards, and collectibles.",
+      "required": true
+    },
+    {
+      "name": "game-loop",
+      "description": "Fixed-timestep game loop with delta time for framerate independence.",
+      "required": true
+    },
+    {
+      "name": "input-handler",
+      "description": "Keyboard input for left/right/jump, with support for multi-key simultaneous press.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "collectibles",
+      "description": "Coins/gems that increment score with pickup feedback.",
+      "required": false
+    },
+    {
+      "name": "enemies",
+      "description": "Patrolling enemies with simple AI and collision damage.",
+      "required": false
+    },
+    {
+      "name": "camera-follow",
+      "description": "Camera that smoothly follows the player with lerp damping.",
+      "required": false
+    },
+    {
+      "name": "parallax-bg",
+      "description": "Parallax scrolling background layers for depth.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "plat-input-responsive",
+      "dimension": "game-feel",
+      "description": "Input is read every frame with no lag; jump has coyote time buffer.",
+      "weight": 0.4
+    },
+    {
+      "id": "plat-juice",
+      "dimension": "game-feel",
+      "description": "Screen shake on landing/damage, squash on jump, particles on collect.",
+      "weight": 0.3
+    },
+    {
+      "id": "plat-delta-motion",
+      "dimension": "game-feel",
+      "description": "All movement uses delta time, not per-frame increments.",
+      "weight": 0.3
+    },
+    {
+      "id": "plat-collision-robust",
+      "dimension": "technical-quality",
+      "description": "Collision resolves on both axes without sticking or tunneling.",
+      "weight": 0.5
+    },
+    {
+      "id": "plat-loop-fixed",
+      "dimension": "technical-quality",
+      "description": "Fixed timestep with interpolation; avoids spiral of death.",
+      "weight": 0.5
+    },
+    {
+      "id": "plat-perf",
+      "dimension": "performance",
+      "description": "No per-frame allocations in game loop; objects pooled.",
+      "weight": 1
+    },
+    {
+      "id": "plat-visual-read",
+      "dimension": "visual-impact",
+      "description": "Player sprite reads clearly against background; contrast is sufficient.",
+      "weight": 1
+    },
+    {
+      "id": "plat-anim",
+      "dimension": "animation-quality",
+      "description": "Walk/jump/idle animations with smooth transitions.",
+      "weight": 1
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "per-frame-alloc",
+      "description": "Creating new objects/arrays inside the game loop causes GC stutter.",
+      "dimension": "performance"
+    },
+    {
+      "id": "frame-dependent-motion",
+      "description": "position += 5 per frame — game runs at different speeds on 60 vs 144Hz.",
+      "dimension": "game-feel"
+    },
+    {
+      "id": "no-coyote-time",
+      "description": "Jump fails if pressed 1 frame after leaving platform — feels unfair.",
+      "dimension": "game-feel"
+    },
+    {
+      "id": "sticky-collision",
+      "description": "Player sticks to walls or snaps through platforms at high speed.",
+      "dimension": "technical-quality"
+    },
+    {
+      "id": "flat-no-juice",
+      "description": "No screen shake, particles, or squash — jumps and landings feel weightless.",
+      "dimension": "game-feel"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-coyote-time",
+      "dimension": "game-feel",
+      "description": "Add 100ms coyote time buffer after leaving platform to allow late jumps.",
+      "expectedUplift": 8
+    },
+    {
+      "id": "add-landing-shake",
+      "dimension": "game-feel",
+      "description": "Add small screen shake on landing for impact weight.",
+      "expectedUplift": 5
+    },
+    {
+      "id": "add-parallax",
+      "dimension": "visual-impact",
+      "description": "Add 2-3 parallax background layers for depth.",
+      "expectedUplift": 6
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Fixed timestep game loop",
+      "kind": "js",
+      "snippet": "const STEP = 1/60; let accumulator = 0; let last = performance.now();\nfunction loop(now) {\n  let dt = (now - last) / 1000; last = now;\n  if (dt > 0.25) dt = 0.25;\n  accumulator += dt;\n  while (accumulator >= STEP) { update(STEP); accumulator -= STEP; }\n  render(accumulator / STEP);\n  requestAnimationFrame(loop);\n}"
+    }
+  ],
+  "references": [
+    {
+      "title": "Phaser 3 — Physics and Arcade Collisions",
+      "url": "https://phaser.io/docs/3.70/physics/arcade"
+    },
+    {
+      "title": "Game Programming Patterns — Game Loop",
+      "author": "Robert Nystrom"
+    },
+    {
+      "title": "A Study in Juice — Game Feel Techniques",
+      "author": "Jan Willem Nijman"
+    }
+  ]
+}

@@ -4,9 +4,9 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
-    "outDir": "dist",
-    "rootDir": ".",
-    "strict": true,
+  "outDir": "dist",
+  "rootDir": "src",
+  "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
@@ -21,6 +21,6 @@
     "verbatimModuleSyntax": false,
     "isolatedModules": true
   },
-  "include": ["src/**/*.ts", "patterns/**/*.json"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "tests"]
 }

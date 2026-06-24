@@ -1,0 +1,176 @@
+{
+  "id": "webgl-shader-art",
+  "name": "WebGL Shader Art",
+  "description": "Generative shader art using WebGL fragment shaders: raymarching, fractals, noise fields, domain repetition, and color grading. Targets raw WebGL2 or Three.js ShaderMaterial fullscreen quad.",
+  "category": "shader_art",
+  "domain": "creative-coding",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "fullscreen-quad",
+      "description": "Fullscreen triangle/quad rendering the fragment shader as a post-process.",
+      "required": true
+    },
+    {
+      "name": "fragment-shader",
+      "description": "Main fragment shader with UV, time uniform, and complex procedural output.",
+      "required": true
+    },
+    {
+      "name": "uniform-inputs",
+      "description": "Time, resolution, and mouse uniforms for interactivity.",
+      "required": true
+    },
+    {
+      "name": "color-grading",
+      "description": "Color palette function or tone mapping for aesthetic output.",
+      "required": true
+    },
+    {
+      "name": "resize-handling",
+      "description": "Canvas resize updates resolution uniform and viewport.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "raymarching",
+      "description": "SDF raymarching for 3D scenes within the fragment shader.",
+      "required": false
+    },
+    {
+      "name": "audio-reactive",
+      "description": "Audio frequency data fed as uniform for music-reactive visuals.",
+      "required": false
+    },
+    {
+      "name": "post-bloom",
+      "description": "Bloom post-pass for glow on bright shader regions.",
+      "required": false
+    },
+    {
+      "name": "interactive-camera",
+      "description": "Mouse controls camera/ray origin for scene exploration.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "shader-visual",
+      "dimension": "visual-impact",
+      "description": "Output is visually striking — complex patterns, depth, color harmony.",
+      "weight": 0.6
+    },
+    {
+      "id": "shader-originality",
+      "dimension": "creative-originality",
+      "description": "Shader is not a trivial copy — has unique procedural elements.",
+      "weight": 1
+    },
+    {
+      "id": "shader-color",
+      "dimension": "visual-impact",
+      "description": "Color palette is deliberate — gradient, contrast, tonemapping applied.",
+      "weight": 0.4
+    },
+    {
+      "id": "shader-anim",
+      "dimension": "animation-quality",
+      "description": "Animation is smooth and continuous with time uniform; no popping.",
+      "weight": 1
+    },
+    {
+      "id": "shader-perf",
+      "dimension": "performance",
+      "description": "Shader compiles fast; no excessive loops; framerate at 60fps on mid GPU.",
+      "weight": 1
+    },
+    {
+      "id": "shader-precision",
+      "dimension": "code-quality",
+      "description": "Fragment shader declares precision qualifiers; no implicit float/int.",
+      "weight": 1
+    },
+    {
+      "id": "shader-balance",
+      "dimension": "technical-quality",
+      "description": "GLSL braces balanced; shader compiles without errors.",
+      "weight": 0.5
+    },
+    {
+      "id": "shader-resize",
+      "dimension": "technical-quality",
+      "description": "Resize updates resolution uniform — no stretch/distortion.",
+      "weight": 0.5
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "no-precision",
+      "description": "Fragment shader missing precision qualifier — renders differently across GPUs.",
+      "dimension": "code-quality"
+    },
+    {
+      "id": "int-float-mix",
+      "description": "Mixing int and float literals (1 vs 1.0) — GLSL strict mode errors.",
+      "dimension": "code-quality"
+    },
+    {
+      "id": "no-resize",
+      "description": "No resize handling — shader stretches when window resizes.",
+      "dimension": "technical-quality"
+    },
+    {
+      "id": "trivial-shader",
+      "description": "Shader is just a UV-to-color gradient with no complexity — not 'art'.",
+      "dimension": "creative-originality"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-noise",
+      "dimension": "visual-impact",
+      "description": "Add FBM noise layers for organic texture detail.",
+      "expectedUplift": 8
+    },
+    {
+      "id": "add-raymarch",
+      "dimension": "creative-originality",
+      "description": "Replace 2D with SDF raymarching for 3D depth.",
+      "expectedUplift": 10
+    },
+    {
+      "id": "add-palette",
+      "dimension": "visual-impact",
+      "description": "Use cosine palette function for harmonious color grading.",
+      "expectedUplift": 6
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Fullscreen quad shader setup",
+      "kind": "js",
+      "snippet": "const geo = new THREE.PlaneGeometry(2, 2);\nconst mat = new THREE.ShaderMaterial({\n  uniforms: { uTime: { value: 0 }, uResolution: { value: new THREE.Vector2() } },\n  vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position, 1.0); }`,\n  fragmentShader: fragSource,\n});\nconst quad = new THREE.Mesh(geo, mat); scene.add(quad);\ncamera = new THREE.Camera();"
+    }
+  ],
+  "references": [
+    {
+      "title": "Shadertoy — Shader Art Community",
+      "url": "https://www.shadertoy.com"
+    },
+    {
+      "title": "The Book of Shaders",
+      "url": "https://thebookofshaders.com"
+    },
+    {
+      "title": "Inigo Quilez — SDF Raymarching",
+      "url": "https://iquilezles.org/articles/"
+    }
+  ]
+}

@@ -34,6 +34,8 @@ export function collectEvidence(artifact: Artifact, opts: EvidenceOptions = {}):
   signals.push(...responsiveSignals(content, artifact.kind, metrics));
   signals.push(...performanceSignals(metrics));
   signals.push(...structureSignals(content, artifact.kind, metrics, valid, parseErrors));
+  signals.push(...graphicsSignals(content, artifact.kind, metrics));
+  signals.push(...gameFeelSignals(content, artifact.kind, metrics));
 
   const conformance = patternConformance(content, opts.pattern);
 
@@ -78,6 +80,42 @@ export function measure(content: string, kind: Artifact["kind"]): ArtifactMetric
   // very rough bundle estimate (bytes of inline code; external imports ~5kb each)
   const estimatedBundleKb = Math.round((bytes / 1024 + importCount * 5) * 10) / 10;
 
+  // --- 3D / graphics metrics ---
+  const useFrameCount = (content.match(/\buseFrame\b/g) ?? []).length;
+  const useThreeCount = (content.match(/\buseThree\b/g) ?? []).length;
+  const shaderCount =
+    (content.match(/shaderMaterial\b/gi) ?? []).length +
+    (content.match(/ShaderMaterial\b/g) ?? []).length +
+    (content.match(/createShaderModule\b/g) ?? []).length +
+    (content.match(/gl\.createShader\b/g) ?? []).length;
+  const disposeCallCount = (content.match(/\.dispose\s*\(/g) ?? []).length;
+  const bufferGeometryCount =
+    (content.match(/bufferGeometry\b/gi) ?? []).length +
+    (content.match(/BufferGeometry\b/g) ?? []).length;
+  const postProcessingCount =
+    (content.match(/EffectComposer\b/g) ?? []).length +
+    (content.match(/UnrealBloomPass\b/g) ?? []).length +
+    (content.match(/RenderPass\b/g) ?? []).length +
+    (content.match(/postprocessing\b/gi) ?? []).length;
+  const instancedMeshCount =
+    (content.match(/InstancedMesh\b/g) ?? []).length +
+    (content.match(/instancedMesh\b/gi) ?? []).length;
+  const additiveBlendingCount = (content.match(/AdditiveBlending\b/g) ?? []).length;
+  const webgpuInitCount =
+    (content.match(/navigator\.gpu\b/g) ?? []).length +
+    (content.match(/requestAdapter\b/g) ?? []).length +
+    (content.match(/getContext\s*\(\s*['"]webgpu['"]/g) ?? []).length;
+  // `new THREE.*` or `new Vector3` etc. inside useFrame/RAF callback — GC pressure
+  const newInLoopCount = countNewInLoop(content);
+  const deltaUsageCount = (content.match(/useFrame\s*\(\s*\([^)]*\bdelta\b[^)]*\)/g) ?? []).length;
+  const inputHandlerCount =
+    (content.match(/\bon(KeyDown|KeyUp|MouseDown|MouseUp|MouseMove|Click|PointerDown|PointerUp|PointerMove)\b/g) ?? []).length +
+    (content.match(/addEventListener\s*\(\s*['"](keydown|keyup|mousedown|mouseup|mousemove|click|pointerdown|pointerup|pointermove)['"]/g) ?? []).length;
+  const screenShakeCount =
+    (content.match(/screenShake\b/gi) ?? []).length +
+    (content.match(/camera\.shake\b/gi) ?? []).length +
+    (content.match(/shake\b/gi) ?? []).length;
+
   return {
     linesOfCode,
     bytes,
@@ -89,7 +127,72 @@ export function measure(content: string, kind: Artifact["kind"]): ArtifactMetric
     altTextCoverage,
     semanticLandmarkCount,
     estimatedBundleKb,
+    useFrameCount,
+    useThreeCount,
+    shaderCount,
+    disposeCallCount,
+    bufferGeometryCount,
+    postProcessingCount,
+    instancedMeshCount,
+    additiveBlendingCount,
+    webgpuInitCount,
+    newInLoopCount,
+    deltaUsageCount,
+    inputHandlerCount,
+    screenShakeCount,
   };
+}
+
+/**
+ * Detect `new THREE.X(...)` or `new Vector3(...)` etc. inside useFrame or
+ * requestAnimationFrame callback bodies. This is the #1 R3F/Three.js GC
+ * anti-pattern. We approximate by finding the callback body region and
+ * counting `new` keyword occurrences that construct 3D types.
+ */
+function countNewInLoop(content: string): number {
+  let count = 0;
+  // match useFrame((state, delta) => { ... }) or useFrame(() => { ... }) bodies
+  const frameRe = /useFrame\s*\(\s*(?:\([^)]*\)\s*=>|function\s*\([^)]*\)\s*)\s*\{/g;
+  let fm: RegExpExecArray | null;
+  while ((fm = frameRe.exec(content)) !== null) {
+    const body = extractBraceBody(content, fm.index + fm[0].length - 1);
+    if (body) count += (body.match(/new\s+[A-Z][A-Za-z0-9_.]*(?:Vector3|Vector2|Matrix4|Matrix3|Quaternion|Color|Euler|Vector3d|THREE\.[A-Z])/g) ?? []).length;
+  }
+  // match requestAnimationFrame(animate) → animate() { ... }
+  const rafRe = /requestAnimationFrame\s*\(\s*(\w+)\s*\)/g;
+  let rm: RegExpExecArray | null;
+  while ((rm = rafRe.exec(content)) !== null) {
+    const fnName = rm[1]!;
+    const fnRe = new RegExp(`function\\s+${fnName}\\s*\\([^)]*\\)\\s*\\{`, "g");
+    let fnm: RegExpExecArray | null;
+    while ((fnm = fnRe.exec(content)) !== null) {
+      const body = extractBraceBody(content, fnm.index + fnm[0].length - 1);
+      if (body) count += (body.match(/new\s+[A-Z][A-Za-z0-9_.]*(?:Vector3|Vector2|Matrix4|Matrix3|Quaternion|Color|Euler|THREE\.[A-Z])/g) ?? []).length;
+    }
+  }
+  return count;
+}
+
+/** Extract a balanced `{...}` body starting at the `{` at position `start`. */
+function extractBraceBody(content: string, start: number): string | null {
+  if (content[start] !== "{") return null;
+  let depth = 0;
+  let inString: string | null = null;
+  for (let i = start; i < content.length; i++) {
+    const ch = content[i]!;
+    if (inString) {
+      if (ch === "\\") { i++; continue; }
+      if (ch === inString) inString = null;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") { inString = ch; continue; }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) return content.slice(start + 1, i);
+    }
+  }
+  return null;
 }
 
 function computeAltCoverage(content: string, isMarkup: boolean): number {
@@ -293,4 +396,117 @@ function patternSignals(conf: PatternConformance, pattern: Pattern): EvidenceSig
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
+}
+
+// ---------------------------------------------------------------------------
+// Graphics / 3D signals (Three.js / R3F / WebGL / WebGPU / shaders)
+// ---------------------------------------------------------------------------
+
+function graphicsSignals(content: string, kind: Artifact["kind"], metrics: ArtifactMetrics): EvidenceSignal[] {
+  if (kind !== "js" && kind !== "ts" && kind !== "jsx" && kind !== "tsx") return [];
+  const out: EvidenceSignal[] = [];
+  const lower = content.toLowerCase();
+
+  // dispose — cleanup of geometry/material/texture. Critical for long-running 3D apps.
+  const hasDispose = metrics.disposeCallCount > 0;
+  const disposeScore = metrics.disposeCallCount === 0 ? 0 : clamp01(metrics.disposeCallCount / 3);
+  out.push({ id: "gfx-dispose", kind: "graphics", label: "GPU resource disposal", value: disposeScore, detail: hasDispose ? `${metrics.disposeCallCount} dispose() calls` : "no dispose() calls — GPU leak risk" });
+
+  // context loss handling — WebGL context lost/restored events
+  const hasContextLoss = /contextlost|contextrestored|WEBGL_lose_context/i.test(content);
+  out.push({ id: "gfx-context-loss", kind: "graphics", label: "context loss handling", value: hasContextLoss ? 1 : 0.3, detail: hasContextLoss ? "context loss handled" : "no context loss handling" });
+
+  // draw calls / renderer.info awareness
+  const hasDrawCallAwareness = /renderer\.info|render\.calls|drawCalls|draw_calls/i.test(content);
+  out.push({ id: "gfx-draw-calls", kind: "graphics", label: "draw call awareness", value: hasDrawCallAwareness ? 1 : 0.5, detail: hasDrawCallAwareness ? "monitors renderer.info" : "no draw call monitoring" });
+
+  // buffer geometry usage — proper BufferGeometry not legacy Geometry
+  const hasBufferGeo = metrics.bufferGeometryCount > 0;
+  out.push({ id: "gfx-buffer-usage", kind: "graphics", label: "BufferGeometry usage", value: hasBufferGeo ? 1 : 0.4, detail: hasBufferGeo ? `${metrics.bufferGeometryCount} BufferGeometry refs` : "no BufferGeometry — may use legacy geometry" });
+
+  // post-processing — EffectComposer / bloom / etc.
+  const ppScore = metrics.postProcessingCount === 0 ? 0.3 : clamp01(metrics.postProcessingCount / 3);
+  out.push({ id: "gfx-postprocessing", kind: "graphics", label: "post-processing", value: ppScore, detail: `${metrics.postProcessingCount} post-processing refs` });
+
+  // WebGPU initialization — proper adapter→device→configure flow
+  const hasWebgpuInit = metrics.webgpuInitCount >= 2 && /requestDevice|configure\b/i.test(content);
+  const hasWebgpuGuard = /navigator\.gpu\s*\?\s*\./i.test(content) || /if\s*\(\s*!?navigator\.gpu/i.test(content);
+  out.push({ id: "gfx-webgpu-init", kind: "graphics", label: "WebGPU init", value: hasWebgpuInit ? (hasWebgpuGuard ? 1 : 0.7) : 0, detail: hasWebgpuInit ? (hasWebgpuGuard ? "proper init + null guard" : "init without null guard") : "no WebGPU init" });
+
+  // instancing — InstancedMesh for batched draws
+  const instancingScore = metrics.instancedMeshCount === 0 ? 0.4 : clamp01(metrics.instancedMeshCount / 2);
+  out.push({ id: "gfx-instancing", kind: "graphics", label: "instancing", value: instancingScore, detail: `${metrics.instancedMeshCount} InstancedMesh refs` });
+
+  // frustum culling awareness
+  const hasFrustumCull = /frustumCulled|Frustum/i.test(content);
+  out.push({ id: "gfx-frustum-cull", kind: "graphics", label: "frustum culling", value: hasFrustumCull ? 1 : 0.5, detail: hasFrustumCull ? "frustum culling present" : "no explicit frustum culling" });
+
+  // shader balance — GLSL/WGSL brace balance in template strings
+  const shaderBalanceScore = checkShaderBalance(content);
+  out.push({ id: "gfx-shader-balance", kind: "graphics", label: "shader brace balance", value: shaderBalanceScore.value, detail: shaderBalanceScore.detail });
+
+  // additive blending (for VFX patterns)
+  const hasAdditive = metrics.additiveBlendingCount > 0;
+  const lowerHasAdditive = lower.includes("additiveblending");
+  void lowerHasAdditive;
+  out.push({ id: "gfx-additive-blending", kind: "graphics", label: "additive blending", value: hasAdditive ? 1 : 0.5, detail: hasAdditive ? `${metrics.additiveBlendingCount} additive blending refs` : "no additive blending" });
+
+  return out;
+}
+
+/** Check GLSL/WGSL shader code brace balance inside template literals. */
+function checkShaderBalance(content: string): { value: number; detail: string } {
+  // Extract template literal contents that look like shaders (contain void main, fn main, uniform, varying, attribute)
+  const tmplRe = /`(?:[^`\\]|\\.)*`/g;
+  let m: RegExpExecArray | null;
+  const shaders: string[] = [];
+  while ((m = tmplRe.exec(content)) !== null) {
+    const body = m[0]!.slice(1, -1);
+    if (/\b(void\s+main|fn\s+main|uniform\b|varying\b|attribute\b|@vertex|@fragment)/i.test(body)) {
+      shaders.push(body);
+    }
+  }
+  if (shaders.length === 0) return { value: 0.5, detail: "no shader template strings detected" };
+  let allBalanced = true;
+  for (const s of shaders) {
+    let depth = 0;
+    for (const ch of s) {
+      if (ch === "{") depth++;
+      else if (ch === "}") depth--;
+      if (depth < 0) { allBalanced = false; break; }
+    }
+    if (depth !== 0) allBalanced = false;
+  }
+  return { value: allBalanced ? 1 : 0, detail: allBalanced ? `${shaders.length} shaders balanced` : `${shaders.length} shaders, brace imbalance detected` };
+}
+
+// ---------------------------------------------------------------------------
+// Game feel signals (juice, input, feedback, timing)
+// ---------------------------------------------------------------------------
+
+function gameFeelSignals(content: string, kind: Artifact["kind"], metrics: ArtifactMetrics): EvidenceSignal[] {
+  if (kind !== "js" && kind !== "ts" && kind !== "jsx" && kind !== "tsx") return [];
+  const out: EvidenceSignal[] = [];
+
+  // input handling — keyboard/mouse/pointer/touch
+  const inputScore = metrics.inputHandlerCount === 0 ? 0.2 : clamp01(metrics.inputHandlerCount / 4);
+  out.push({ id: "feel-input", kind: "game-feel", label: "input handling", value: inputScore, detail: `${metrics.inputHandlerCount} input handlers` });
+
+  // screen shake / camera shake — juice indicator
+  const shakeScore = metrics.screenShakeCount === 0 ? 0.3 : clamp01(metrics.screenShakeCount / 2);
+  out.push({ id: "feel-screen-shake", kind: "game-feel", label: "screen shake", value: shakeScore, detail: `${metrics.screenShakeCount} shake refs` });
+
+  // hit feedback — particles/flash/impact on collision or hit
+  const hasHitFeedback = /hit\b|impact|flash|explosion|burst|spark/i.test(content);
+  out.push({ id: "feel-hit-feedback", kind: "game-feel", label: "hit feedback", value: hasHitFeedback ? 1 : 0.3, detail: hasHitFeedback ? "hit feedback present" : "no hit feedback" });
+
+  // delta-based motion — useFrame delta or delta time for framerate independence
+  const deltaScore = metrics.deltaUsageCount > 0 ? 1 : 0.4;
+  out.push({ id: "feel-delta-motion", kind: "game-feel", label: "framerate-independent motion", value: deltaScore, detail: metrics.deltaUsageCount > 0 ? `${metrics.deltaUsageCount} delta usages` : "no delta-based motion — frame-dependent" });
+
+  // anticipation / easing — tweening, easing functions, anticipation
+  const hasEasing = /easing|easing|tween|anticipat|ease[A-Z]|cubicBezier|lerp\b|slerp\b/i.test(content);
+  out.push({ id: "feel-anticipation", kind: "game-feel", label: "easing/anticipation", value: hasEasing ? 1 : 0.4, detail: hasEasing ? "easing/lerp present" : "no easing — linear motion only" });
+
+  return out;
 }

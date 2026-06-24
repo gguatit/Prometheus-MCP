@@ -18,7 +18,7 @@ import { LruCache } from "./infrastructure/cache.js";
 import { FilePatternRepository } from "./patterns/repository.js";
 import { FileHistoryRepository, FileMemoryRepository, AnalyticsService } from "./memory/repository.js";
 import { KnowledgeCollectorService } from "./knowledge/collector.js";
-import { InternalPatternCollector } from "./knowledge/collector.js";
+import { InternalPatternCollector, Context7CuratedCollector } from "./knowledge/collector.js";
 import { CriticEngine } from "./critic/engine.js";
 import { ImprovementEngine } from "./improver/engine.js";
 import { ProviderRouter } from "./providers/router.js";
@@ -75,6 +75,7 @@ export async function buildServer(): Promise<McpServer> {
   // --- knowledge ---
   const knowledge = new KnowledgeCollectorService([
     new InternalPatternCollector(await patterns.all()),
+    new Context7CuratedCollector(),
   ]);
 
   // --- core engines ---

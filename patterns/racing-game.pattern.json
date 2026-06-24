@@ -1,0 +1,172 @@
+{
+  "id": "racing-game",
+  "name": "Racing Game",
+  "description": "A 3D racing game with car controller, track with checkpoints, lap timing, speed boost, and opponent AI. Targets Three.js with custom car physics or Rapier raycast vehicle.",
+  "category": "racing_3d",
+  "domain": "game-development",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "car-controller",
+      "description": "Car with acceleration, steering, drift, and friction model.",
+      "required": true
+    },
+    {
+      "name": "track-checkpoints",
+      "description": "Track with checkpoint sequence, lap counting, and wrong-way detection.",
+      "required": true
+    },
+    {
+      "name": "lap-timer",
+      "description": "Lap time display with best lap, current lap, and delta to best.",
+      "required": true
+    },
+    {
+      "name": "camera-follow",
+      "description": "Chase camera that follows the car with position lerp and look-ahead.",
+      "required": true
+    },
+    {
+      "name": "speed-feedback",
+      "description": "Speed lines/FOV widen/sound pitch at high speed for sense of velocity.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "opponent-ai",
+      "description": "AI cars that follow racing line with rubber-banding.",
+      "required": false
+    },
+    {
+      "name": "drift-mechanic",
+      "description": "Handbrake drift with tire smoke particles and lateral friction reduction.",
+      "required": false
+    },
+    {
+      "name": "boost-system",
+      "description": "Nitro boost with limited charges and visual flame trail.",
+      "required": false
+    },
+    {
+      "name": "minimap",
+      "description": "Top-down minimap showing track, player, and opponents.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "race-speed-feel",
+      "dimension": "game-feel",
+      "description": "FOV widens at speed, camera pulls back, speed lines appear — velocity is felt.",
+      "weight": 0.4
+    },
+    {
+      "id": "race-drift-juice",
+      "dimension": "game-feel",
+      "description": "Drift has tire smoke, sound, and controlled slide feel.",
+      "weight": 0.3
+    },
+    {
+      "id": "race-camera",
+      "dimension": "game-feel",
+      "description": "Chase camera is smooth, never clips through walls, lerp-damped.",
+      "weight": 0.3
+    },
+    {
+      "id": "race-physics",
+      "dimension": "technical-quality",
+      "description": "Car physics model is stable at all speeds; no flipping or flying off track.",
+      "weight": 0.5
+    },
+    {
+      "id": "race-checkpoint",
+      "dimension": "technical-quality",
+      "description": "Checkpoint/lap logic is robust — no skipping, no false triggers.",
+      "weight": 0.5
+    },
+    {
+      "id": "race-perf",
+      "dimension": "performance",
+      "description": "Track geometry is optimized; instanced barriers; no per-frame alloc in car update.",
+      "weight": 1
+    },
+    {
+      "id": "race-visual",
+      "dimension": "visual-impact",
+      "description": "Track environment has scenery, lighting, and atmosphere; road texture reads at speed.",
+      "weight": 1
+    },
+    {
+      "id": "race-hud",
+      "dimension": "user-experience",
+      "description": "Speedometer, lap timer, position — all readable at a glance during fast play.",
+      "weight": 1
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "no-speed-feel",
+      "description": "Car moves but there's no sense of speed — feels like driving at 20mph.",
+      "dimension": "game-feel"
+    },
+    {
+      "id": "camera-clip",
+      "description": "Chase camera clips through walls or ground — jarring visual break.",
+      "dimension": "technical-quality"
+    },
+    {
+      "id": "car-flip",
+      "description": "Car flips over on small bumps and cannot recover — frustrating.",
+      "dimension": "technical-quality"
+    },
+    {
+      "id": "checkpoint-skip",
+      "description": "Player can skip checkpoints by cutting corners — breaks lap timing.",
+      "dimension": "technical-quality"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-fov-speed",
+      "dimension": "game-feel",
+      "description": "Widen camera FOV from 60 to 80 as speed increases for velocity feel.",
+      "expectedUplift": 10
+    },
+    {
+      "id": "add-tire-smoke",
+      "dimension": "game-feel",
+      "description": "Add tire smoke particles during drift and hard braking.",
+      "expectedUplift": 7
+    },
+    {
+      "id": "add-environment",
+      "dimension": "visual-impact",
+      "description": "Add roadside scenery (trees, barriers, grandstands) for speed reference.",
+      "expectedUplift": 8
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "Chase camera with lerp",
+      "kind": "js",
+      "snippet": "const camOffset = new THREE.Vector3(0, 3, -8); // hoisted\ncamera.position.lerp(carPos.clone().add(camOffset), 1 - Math.exp(-8 * delta));\ncamera.lookAt(carPos);"
+    }
+  ],
+  "references": [
+    {
+      "title": "Three.js — Vehicle Physics Example",
+      "url": "https://threejs.org/examples/"
+    },
+    {
+      "title": "GDC — The Physics of Racing Games",
+      "author": "Various"
+    }
+  ]
+}

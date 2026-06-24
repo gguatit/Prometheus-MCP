@@ -1,0 +1,161 @@
+{
+  "id": "r3f-postprocessing",
+  "name": "R3F Post-Processing Stack",
+  "description": "A React Three Fiber scene with @react-three/postprocessing stack: bloom, depth of field, vignette, chromatic aberration, and noise. Elevates visual quality with cinematic effects.",
+  "category": "r3f_postprocessing",
+  "domain": "react-three-fiber",
+  "version": "1.0.0",
+  "provenance": {
+    "source": "internal",
+    "trust": "internal",
+    "fetchedAt": "2026-01-01T00:00:00.000Z",
+    "author": "Prometheus team"
+  },
+  "requiredElements": [
+    {
+      "name": "effect-composer",
+      "description": "EffectComposer from @react-three/postprocessing wrapping the scene.",
+      "required": true
+    },
+    {
+      "name": "bloom-pass",
+      "description": "Bloom effect with threshold tuned so only highlights glow, not whole scene.",
+      "required": true
+    },
+    {
+      "name": "tone-mapping",
+      "description": "ACESFilmicToneMapping or ToneMapping effect for filmic color response.",
+      "required": true
+    },
+    {
+      "name": "vignette",
+      "description": "Vignette effect for cinematic edge darkening.",
+      "required": true
+    }
+  ],
+  "optionalElements": [
+    {
+      "name": "depth-of-field",
+      "description": "DepthOfField effect for focal plane blur.",
+      "required": false
+    },
+    {
+      "name": "chromatic-aberration",
+      "description": "ChromaticAberration for lens distortion at edges.",
+      "required": false
+    },
+    {
+      "name": "noise",
+      "description": "Noise effect for film grain texture.",
+      "required": false
+    },
+    {
+      "name": "ssao",
+      "description": "N8AO or SSAO for ambient occlusion contact shadows.",
+      "required": false
+    }
+  ],
+  "qualityRules": [
+    {
+      "id": "pp-bloom-threshold",
+      "dimension": "graphics-quality",
+      "description": "Bloom threshold set so only emissive highlights bloom, not mid-tones.",
+      "weight": 0.37
+    },
+    {
+      "id": "pp-tone",
+      "dimension": "visual-impact",
+      "description": "Tone mapping produces filmic, not washed-out, color response.",
+      "weight": 0.43
+    },
+    {
+      "id": "pp-vignette",
+      "dimension": "visual-impact",
+      "description": "Vignette is subtle, not overwhelming — guides eye to center.",
+      "weight": 0.29
+    },
+    {
+      "id": "pp-stack-balance",
+      "dimension": "visual-impact",
+      "description": "Effects compose coherently — no one effect dominates.",
+      "weight": 0.28
+    },
+    {
+      "id": "pp-perf",
+      "dimension": "performance",
+      "description": "Post-processing runs at 60fps; effects are not redundant.",
+      "weight": 0.5
+    },
+    {
+      "id": "pp-dispose",
+      "dimension": "graphics-quality",
+      "description": "EffectComposer and passes dispose on unmount.",
+      "weight": 0.63
+    },
+    {
+      "id": "pp-dpr",
+      "dimension": "performance",
+      "description": "DPR capped at 2; post-processing resolution scales with DPR.",
+      "weight": 0.5
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "bloom-too-strong",
+      "description": "Bloom threshold too low or intensity too high — whole scene glows, looks cheap.",
+      "dimension": "graphics-quality"
+    },
+    {
+      "id": "no-tone-mapping",
+      "description": "No tone mapping — bright areas clip to white, colors look flat.",
+      "dimension": "visual-impact"
+    },
+    {
+      "id": "stack-overload",
+      "description": "Too many effects stacked — 30fps or worse on mid-range GPUs.",
+      "dimension": "performance"
+    },
+    {
+      "id": "no-dpr-cap",
+      "description": "DPR unbounded — 4K retina renders post-processing at 2x cost for no benefit.",
+      "dimension": "performance"
+    }
+  ],
+  "improvementSuggestions": [
+    {
+      "id": "add-dof",
+      "dimension": "visual-impact",
+      "description": "Add DepthOfField for cinematic focal plane.",
+      "expectedUplift": 7
+    },
+    {
+      "id": "add-chromatic",
+      "dimension": "visual-impact",
+      "description": "Add subtle ChromaticAberration at screen edges for lens realism.",
+      "expectedUplift": 4
+    },
+    {
+      "id": "add-noise",
+      "dimension": "visual-impact",
+      "description": "Add film grain Noise for analog texture.",
+      "expectedUplift": 3
+    }
+  ],
+  "exampleOutputs": [
+    {
+      "label": "R3F postprocessing stack",
+      "kind": "jsx",
+      "snippet": "<EffectComposer>\n  <Bloom intensity={1.0} luminanceThreshold={0.85} luminanceSmoothing={0.4} mipmapBlur />\n  <ToneMapping mode={ACESFilmic} />\n  <Vignette eskil={false} offset={0.3} darkness={0.8} />\n</EffectComposer>"
+    }
+  ],
+  "references": [
+    {
+      "title": "@react-three/postprocessing",
+      "url": "https://github.com/pmndrs/react-postprocessing"
+    },
+    {
+      "title": "Three.js — UnrealBloomPass",
+      "url": "https://threejs.org/examples/#webgl_postprocessing_unreal_bloom"
+    }
+  ]
+}

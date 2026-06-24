@@ -1,6 +1,7 @@
 import type { CreativeBrief, KnowledgeFragment, Pattern } from "../types/index.js";
 import { sanitize, assembleKnowledgeData } from "../infrastructure/security.js";
 import { newId } from "../infrastructure/telemetry.js";
+import { CURATED_FRAGMENTS } from "./curated/fragments.js";
 
 /**
  * KnowledgeCollector — pluggable source collectors by priority:
@@ -53,6 +54,40 @@ export class StubExternalCollector implements IKnowledgeCollector {
       quarantined: true,
       collectedAt: new Date().toISOString(),
     }];
+  }
+}
+
+/**
+ * Context7CuratedCollector — serves embedded knowledge fragments extracted
+ * from Context7 research (Three.js, R3F, WebGPU, Phaser, Rapier, shaders,
+ * game feel). NO network, NO API key — fully deterministic and offline.
+ *
+ * Fragments are filtered by domain relevance to the brief. All content is
+ * trusted (verified) and passes the sanitizer downstream as data.
+ *
+ * Roadmap: a live Context7Collector can replace this by implementing the
+ * same IKnowledgeCollector interface and calling the Context7 MCP at runtime.
+ */
+export class Context7CuratedCollector implements IKnowledgeCollector {
+  readonly source = "official-doc" as const;
+
+  async collect(brief: CreativeBrief): Promise<KnowledgeFragment[]> {
+    const domainKeywords: Record<string, string[]> = {
+      "three-js": ["threejs", "renderer", "geometry", "material", "dispose", "instanced", "particle", "postprocessing", "bloom", "webgl", "context"],
+      "react-three-fiber": ["r3f", "useframe", "canvas", "useThree", "drei", "scene", "ref"],
+      "vfx": ["particle", "shader", "blending", "bloom", "glsl", "additive", "fireball", "effect"],
+      "game-development": ["game", "juice", "shake", "physics", "input", "loop", "timestep", "phaser", "rapier", "collision"],
+      "creative-coding": ["shader", "glsl", "webgl", "webgpu", "canvas", "particle", "generative"],
+      "interactive-experience": ["input", "animation", "easing", "tween", "interactive", "scene"],
+      "frontend-animation": ["easing", "lerp", "tween", "animation", "delta", "framerate"],
+    };
+    const keywords = domainKeywords[brief.domain] ?? [];
+    if (keywords.length === 0) return [];
+
+    return CURATED_FRAGMENTS.filter((f) => {
+      const lower = (f.title + " " + f.content).toLowerCase();
+      return keywords.some((kw) => lower.includes(kw));
+    }).map((f) => sanitize(f.content, { source: "official-doc", title: f.title, trust: "verified" }));
   }
 }
 
